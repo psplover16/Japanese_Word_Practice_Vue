@@ -11,8 +11,8 @@ const title = computed(() => route.meta.title || "Japanese Word Practice");
 
 <template>
   <div class="container">
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">{{ title }}</h1>
+    <div class="flex justify-between items-center flex-wrap gap-y-2">
+      <h1 class="text-xl font-bold text-nowrap">{{ title }}</h1>
       <div class="flex gap-2">
         <BaseBtn
           label="字母練習"
@@ -26,9 +26,7 @@ const title = computed(() => route.meta.title || "Japanese Word Practice");
         />
       </div>
     </div>
-    <div class="bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3">
-      <router-view />
-    </div>
+    <router-view />
   </div>
 </template>
 

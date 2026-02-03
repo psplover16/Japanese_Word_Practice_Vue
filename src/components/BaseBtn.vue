@@ -18,7 +18,9 @@ const props = defineProps({
     type: String,
     default: "none",
     validator: (value) =>
-      ["default", "reset", "submit", "disabled", "none"].includes(value),
+      ["default", "reset", "submit", "unknown", "disabled", "none"].includes(
+        value,
+      ),
   },
   isBorderless: {
     type: Boolean,
@@ -56,6 +58,11 @@ const activeThemeVariantMap = {
     outline: "border border-black",
     active: "",
   },
+  unknown: {
+    primary: "bg-amber-200 text-amber-900",
+    outline: "border-amber-200",
+    active: "",
+  },
   disabled: {
     primary: "",
     outline: "",
@@ -86,9 +93,8 @@ const btnClass = computed(() => {
   <button
     :type="type"
     :disabled="disabled"
-    class="px-3 py-[6px] rounded-md"
+    class="px-3 py-[6px] rounded-md text-nowrap text-sm"
     :class="btnClass"
-    @click="$emit('click')"
   >
     <slot name="prefix"></slot>
     <slot name="content">{{ label }}</slot>
