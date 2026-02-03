@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+$primary: #42b883;
+
+body {
+    background-color: theme("colors.brandGray");
+    font-family: sans-serif;
+}
