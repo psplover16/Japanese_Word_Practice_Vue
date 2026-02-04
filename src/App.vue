@@ -27,7 +27,6 @@ function reload() {
 </script>
 
 <template>
-  <!--  -->
   <router-view />
   <div class="banner" v-if="status === 'downloading' || status === 'ready'">
     <div
