@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, reactive, computed } from "vue";
 import { letters, dakutenMap, sokuon, youon } from "@/constants/jpText.js";
+import { shuffled } from "@/helper/dealArray.js";
 
 export default defineStore("chooseTestArea", () => {
   // 每個格子的選取狀態，key 使用 `${rowIndex}-${colIndex}`
@@ -12,17 +13,7 @@ export default defineStore("chooseTestArea", () => {
   const includeSokuon = ref(false);
   const includeYouon = ref(false);
 
-  // 洗牌陣列（Fisher-Yates 演算法）
-  function shuffleInPlace(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-  function shuffled(arr) {
-    return shuffleInPlace([...arr]);
-  }
+
 
   const getChoosedLettersData = computed(() => {
     // 轉成陣列處理後再轉回成物件
