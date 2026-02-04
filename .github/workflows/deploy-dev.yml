@@ -1,0 +1,54 @@
+# 顯示用名字，只影響你在 GitHub Actions 頁面看到的名稱
+name: Deploy Preview (develop)
+
+# 什麼時候要跑這個工作流程 (只要有人 push 到 develop 分支)
+on:
+  push:
+    branches:
+      - develop
+      # - main
+    # branches: [main, develop]
+
+# 給機器人權限 (讀 repo 內容、寫 Pages、寫 id-token) (是 GitHub Pages 官方要求的最低權限)
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 我要做哪些工作
+jobs:
+  build:
+    # 開一台 最新版 Ubuntu Linux 機器來跑這些步驟，也可以用：windows-latest / macos-latest，但Ubuntu最快最穩
+    runs-on: ubuntu-latest
+
+    steps:
+    # 把我的程式碼從 GitHub 抓下來，複製到機器器的工作目錄
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+    # 安裝nodeJS18
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+    # 安裝相依套件，按照package-lock.json來安裝
+      - name: Install dependencies
+        run: npm ci
+    # 打包專案
+      - name: Build
+        run: npm run build:dev
+    # 把dist資料夾打包起來，交給 GitHub Pages
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    # build 成功後，才允許 deploy
+    needs: build
+    runs-on: ubuntu-latest
+    # github的部屬動作
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
