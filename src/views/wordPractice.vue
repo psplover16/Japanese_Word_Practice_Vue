@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, watch, nextTick } from "vue";
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-// import { wordPracticeText } from "@/constants/jpText.js";
 import wordPracticeText from "@/constants/jpWords.js";
 
 import useWordsMemoryStore from "@/stores/wordsMemory.js";
@@ -12,7 +11,7 @@ import { storeToRefs } from "pinia";
 const wordsMemory = useWordsMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
 const { setOldStorageData, setWordsStorage, clearWordsStorage } = wordsMemory;
-const { getChoosedLettersData } = storeToRefs(chooseTestAreaStore);
+const { kanaWithDakutenAndSokuonData } = storeToRefs(chooseTestAreaStore);
 const { getNoticeWords } = storeToRefs(wordsMemory);
 
 const isShowWords = ref(true);
@@ -20,6 +19,7 @@ const isShowPracticeWords = ref(false);
 const isShowRomanization = ref(false);
 const isShowMeaning = ref(false);
 const wantNoteId = ref({});
+const isShowAllWords = ref(false);
 
 // 平假名轉片假名 + 片假名轉平假名
 function swapKana(str) {
@@ -45,9 +45,9 @@ function swapKana(str) {
 // 流程，將允許的字串放入 Set，然後過濾單字
 // 將單字表的每一個字拆解，將拆解的字依依放入 Set 中比對
 // 將假名set，方便後續過濾用
-function buildAllowedKanaSet(getChoosedLettersData) {
+function buildAllowedKanaSet(kanaWithDakutenAndSokuonData) {
   const set = new Set();
-  for (const item of getChoosedLettersData) {
+  for (const item of kanaWithDakutenAndSokuonData) {
     set.add(item.hiragana);
     set.add(item.katakana);
   }
@@ -74,8 +74,11 @@ function canShowWord(text, allowedKanaSet) {
 }
 
 // 過濾單字
-function filterWordPracticeText(wordPracticeText, getChoosedLettersData) {
-  const allowedKanaSet = buildAllowedKanaSet(getChoosedLettersData);
+function filterWordPracticeText(
+  wordPracticeText,
+  kanaWithDakutenAndSokuonData,
+) {
+  const allowedKanaSet = buildAllowedKanaSet(kanaWithDakutenAndSokuonData);
   return wordPracticeText.filter((item) =>
     canShowWord(item.text, allowedKanaSet),
   );
@@ -92,9 +95,12 @@ const addIdwordPracticeText = computed(() => {
 });
 
 const resultData = computed(() => {
+  if (isShowAllWords.value) {
+    return addIdwordPracticeText.value;
+  }
   return filterWordPracticeText(
     addIdwordPracticeText.value,
-    getChoosedLettersData.value,
+    kanaWithDakutenAndSokuonData.value,
   );
 });
 
@@ -140,7 +146,11 @@ onMounted(() => {
   <div
     class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
   >
-    <div class="flex justify-between" v-show="resultData.length > 0">
+    <div class="flex justify-between">
+      <span>{{ resultData.length }}個單字</span>
+      <BaseCheckbox label="顯示全部" v-model="isShowAllWords" />
+    </div>
+    <div class="flex justify-between" v-if="resultData.length > 0">
       <BaseBtn label="儲存註記" theme="default" @click="saveNote" />
       <BaseBtn label="刪除全部註記" theme="reset" @click="deleteNote" />
     </div>

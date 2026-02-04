@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, reactive, computed } from "vue";
-import { letters } from "@/constants/jpText.js";
+import { letters, dakutenMap, sokuon, youon } from "@/constants/jpText.js";
 
 export default defineStore("chooseTestArea", () => {
   // 每個格子的選取狀態，key 使用 `${rowIndex}-${colIndex}`
@@ -8,6 +8,9 @@ export default defineStore("chooseTestArea", () => {
   const testNum = ref(5);
   const includeHiragana = ref(true);
   const includeKatakana = ref(false);
+  const includeDakuten = ref(false);
+  const includeSokuon = ref(false);
+  const includeYouon = ref(false);
 
   // 洗牌陣列（Fisher-Yates 演算法）
   function shuffleInPlace(arr) {
@@ -31,7 +34,24 @@ export default defineStore("chooseTestArea", () => {
       acc.push(letters[cur[0]].cells[cur[1]]);
       return acc;
     }, []);
-    return getAllTextData;
+    return getAllTextData || [];
+  });
+
+  // 情況下的資料：選取的基本字 + 濁音 + 促音
+  const kanaWithDakutenAndSokuonData = computed(() => {
+    let tmpData = getChoosedLettersData.value;
+    if (includeDakuten.value) {
+      tmpData = tmpData.concat(dakutenMap.flat());
+    }
+
+    if (includeSokuon.value) {
+      tmpData.push(sokuon);
+    }
+
+    if (includeYouon.value) {
+      tmpData = tmpData.concat(youon);
+    }
+    return tmpData;
   });
 
 
@@ -69,6 +89,9 @@ export default defineStore("chooseTestArea", () => {
   const resetForm = () => {
     includeHiragana.value = true;
     includeKatakana.value = true;
+    includeDakuten.value = false;
+    includeSokuon.value = false;
+    includeYouon.value = false;
     testNum.value = 5;
     Object.keys(selectedLetters).forEach(
       (k) => (selectedLetters[k] = false),
@@ -81,10 +104,14 @@ export default defineStore("chooseTestArea", () => {
     testNum,
     includeHiragana,
     includeKatakana,
+    includeDakuten,
+    includeSokuon,
+    includeYouon,
     shuffled,
     resetForm,
     getChoosedLettersData,
     dealAllTextDataComputed,
+    kanaWithDakutenAndSokuonData
   };
 });
 

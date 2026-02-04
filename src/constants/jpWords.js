@@ -275,5 +275,5 @@ export default [
     { text: 'せってい', romanization: 'set-te-i', meaning: '設定' },
     { text: 'ほぞん', romanization: 'ho-zon', meaning: '保存' },
     { text: 'さくじょ', romanization: 'sa-ku-jo', meaning: '刪除' },
-    { text: 'こうしん', romanization: 'ko-u-shin', meaning: '更新' }
+    { text: 'こうしん', romanization: 'ko-u-shin', meaning: '更新' },
 ];

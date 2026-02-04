@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch, nextTick } from "vue";
 
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import { letters } from "@/constants/jpText.js";
+import { letters, dakutenMap } from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
 import useLettersMemoryStore from "@/stores/lettersMemory.js";
@@ -12,16 +12,28 @@ import { storeToRefs } from "pinia";
 
 const lettersMemory = useLettersMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
-const { setRecord, setOldRecords, clearRecordAndLocalStorage } = lettersMemory;
+const { setOldRecords, clearRecordAndLocalStorage } = lettersMemory;
 const { getOldRecord } = storeToRefs(lettersMemory);
-const { testNum, includeHiragana, includeKatakana } =
-  storeToRefs(chooseTestAreaStore);
+
+const {
+  testNum,
+  includeHiragana,
+  includeKatakana,
+  includeDakuten,
+  includeSokuon,
+  includeYouon,
+} = storeToRefs(chooseTestAreaStore);
 
 // `allChoose` 作為 computed getter/setter，避免額外的 watch 迴圈
 const allChoose = computed({
   get() {
     return (
-      includeHiragana.value && includeKatakana.value && isFullSelection.value
+      includeHiragana.value &&
+      includeKatakana.value &&
+      isFullSelection.value &&
+      includeDakuten.value &&
+      includeSokuon.value &&
+      includeYouon.value
     );
   },
   set(val) {
@@ -39,6 +51,9 @@ const allChoose = computed({
     }
     includeHiragana.value = val;
     includeKatakana.value = val;
+    includeDakuten.value = val;
+    includeSokuon.value = val;
+    includeYouon.value = val;
   },
 });
 
@@ -111,7 +126,7 @@ onMounted(() => {
         <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
           <BaseCheckbox label="題目包含：平假名" v-model="includeHiragana" />
           <BaseCheckbox label="題目包含：片假名" v-model="includeKatakana" />
-          <BaseCheckbox label="全選 / 全不選（音節）" v-model="allChoose" />
+          <BaseCheckbox label="全選 / 全不選" v-model="allChoose" />
           <label
             class="flex gap-2 items-center text-sm cursor-pointer text-nowrap"
           >
@@ -126,6 +141,14 @@ onMounted(() => {
               v-model="testNum"
             />
           </label>
+        </div>
+        <div>
+          <BaseCheckbox label="濁音/半濁音" v-model="includeDakuten" />
+          <BaseCheckbox label="促音" v-model="includeSokuon" />
+          <BaseCheckbox
+            label="拗音與其他 (長音符等等...)"
+            v-model="includeYouon"
+          />
         </div>
         <div class="flex gap-1 items-center justify-between w-full">
           <div class="flex gap-1">
@@ -217,6 +240,36 @@ onMounted(() => {
         </table>
       </div>
     </form>
+
+    <table class="w-full border-separate border-spacing-0 mt-3">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
+            colspan="5"
+          >
+            濁音 / 半濁音
+          </th>
+        </tr>
+      </thead>
+      <tr v-for="(row, rowIndex) in dakutenMap" :key="rowIndex">
+        <td
+          v-for="(detailData, colIndex) in row"
+          :key="colIndex"
+          class="border border-gray-300 p-1 relative bg-white no-select"
+        >
+          <div class="flex flex-col justify-center items-center">
+            <div class="font-bold text-nowrap sm:text-xl text-lg">
+              {{ `${detailData?.hiragana} / ${detailData?.katakana}` }}
+            </div>
+            <div class="font-semibold text-xs text-muted">
+              {{ detailData?.romanization }}
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
     <NoticeCard v-model="noticeCardVisible" />
   </div>
   <!--  -->

@@ -111,3 +111,60 @@ export const letters = [
   },
 ];
 
+
+
+export const dakutenMap = [
+  // 濁音
+  [
+    { base: "ka", hiragana: "が", katakana: "ガ", romanization: 'ga' },
+    { base: "ki", hiragana: "ぎ", katakana: "ギ", romanization: 'gi' },
+    { base: "ku", hiragana: "ぐ", katakana: "グ", romanization: 'gu' },
+    { base: "ke", hiragana: "げ", katakana: "ゲ", romanization: 'ge' },
+    { base: "ko", hiragana: "ご", katakana: "ゴ", romanization: 'go' },
+  ],
+  [
+    { base: "sa", hiragana: "ざ", katakana: "ザ", romanization: 'za' },
+    { base: "shi", hiragana: "じ", katakana: "ジ", romanization: 'ji' },
+    { base: "su", hiragana: "ず", katakana: "ズ", romanization: 'zu' },
+    { base: "se", hiragana: "ぜ", katakana: "ゼ", romanization: 'ze' },
+    { base: "so", hiragana: "ぞ", katakana: "ゾ", romanization: 'zo' }
+  ],
+  [
+    { base: "ta", hiragana: "だ", katakana: "ダ", romanization: 'da' },
+    { base: "chi", hiragana: "ぢ", katakana: "ヂ", romanization: 'ji' },
+    { base: "tsu", hiragana: "づ", katakana: "ヅ", romanization: 'zu' },
+    { base: "te", hiragana: "で", katakana: "デ", romanization: 'de' },
+    { base: "to", hiragana: "ど", katakana: "ド", romanization: 'do' },
+  ],
+  [
+    { base: "ha", hiragana: "ば", katakana: "バ", romanization: 'ba' },
+    { base: "hi", hiragana: "び", katakana: "ビ", romanization: 'bi' },
+    { base: "fu", hiragana: "ぶ", katakana: "ブ", romanization: 'bu' },
+    { base: "he", hiragana: "べ", katakana: "ベ", romanization: 'be' },
+    { base: "ho", hiragana: "ぼ", katakana: "ボ", romanization: 'bo' },
+  ],
+
+  [
+    // 半濁音
+    { base: "ha", hiragana: "ぱ", katakana: "パ", romanization: 'pa' },
+    { base: "hi", hiragana: "ぴ", katakana: "ピ", romanization: 'pi' },
+    { base: "fu", hiragana: "ぷ", katakana: "プ", romanization: 'pu' },
+    { base: "he", hiragana: "ぺ", katakana: "ペ", romanization: 'pe' },
+    { base: "ho", hiragana: "ぽ", katakana: "ポ", romanization: 'po' },
+  ],
+]
+
+export const sokuon = {
+  hiragana: "っ",
+  katakana: "ッ",
+  romanization: "促音",
+  rule: "後接 k/s/t/p 行，發音停頓"
+};
+
+export const youon = [
+  { base: "拗音", hiragana: "ゃ", katakana: "ゃ", romanization: '' },
+  { base: "拗音", hiragana: "ゅ", katakana: "ゅ", romanization: '' },
+  { base: "拗音", hiragana: "ょ", katakana: "ょ", romanization: '' },
+  // 
+  { base: "長音符", hiragana: "ー", katakana: "ー", romanization: '' },
+];
