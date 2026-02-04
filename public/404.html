@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <title>SPA Redirect</title>
     <script>
+        // ⚠️ 一定要跟你的 repo 名稱一模一樣
         const repo = '/Japanese_Word_Practice_Vue'
+
         const path = location.pathname.replace(repo, '')
-        location.replace(repo + '/#' + path)
+        const search = location.search
+        const hash = location.hash
+
+        location.replace(
+            repo + '/#' + path + search + hash
+        )
     </script>
 </head>
 
