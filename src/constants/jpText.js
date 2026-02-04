@@ -158,13 +158,33 @@ export const sokuon = {
   hiragana: "っ",
   katakana: "ッ",
   romanization: "促音",
-  rule: "後接 k/s/t/p 行，發音停頓"
+  rule: "後接 k/s/t/p 行，發音停頓/加強"
 };
 
 export const youon = [
-  { base: "拗音", hiragana: "ゃ", katakana: "ゃ", romanization: '' },
-  { base: "拗音", hiragana: "ゅ", katakana: "ゅ", romanization: '' },
-  { base: "拗音", hiragana: "ょ", katakana: "ょ", romanization: '' },
+  {
+    base: "拗音",
+    data: [
+      { hiragana: "ゃ", katakana: "ャ", romanization: 'ya' },
+      { hiragana: "ゅ", katakana: "ュ", romanization: 'yu' },
+      { hiragana: "ょ", katakana: "ョ", romanization: 'yo' },
+    ]
+  }
+  ,
+  {
+    base: "合拗音",
+    data: [
+      { hiragana: "ゎ", katakana: "ヮ", romanization: 'wa' },
+      { hiragana: "ゐ", katakana: "ヰ", romanization: 'wi' },
+      { hiragana: "ゑ", katakana: "ヱ", romanization: 'we' },
+    ]
+  }
+  ,
   // 
-  { base: "長音符", hiragana: "ー", katakana: "ー", romanization: '' },
+  {
+    base: "長音符",
+    data: [
+      { hiragana: "ー", katakana: "", romanization: '把「前一個母音」拉長一拍來念' },
+    ]
+  }
 ];
