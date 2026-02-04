@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/build-sw.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -19,6 +19,7 @@
     "postcss": "^8.5.6",
     "sass": "^1.97.3",
     "tailwindcss": "^3.4.19",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "workbox-build": "^7.4.0"
   }
 }

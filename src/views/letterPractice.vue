@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
 
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
@@ -34,8 +34,8 @@ const allChoose = computed({
 });
 
 const formData = reactive({
-  hiragana: false,
-  katakana: false,
+  hiragana: true,
+  katakana: true,
   testNumber: 5,
 });
 
@@ -74,16 +74,17 @@ const instinateTest = () => {
   noticeCardVisible.value = true;
 };
 const resetForm = () => {
-  formData.hiragana = false;
-  formData.katakana = false;
+  formData.hiragana = true;
+  formData.katakana = true;
   formData.testNumber = 5;
   Object.keys(selected).forEach((k) => (selected[k] = false));
 };
 
 watch(
   getOldRecord,
-  (val) => {
+  async (val) => {
     if (val.length > 0) {
+      await nextTick();
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }
   },
@@ -130,9 +131,11 @@ onMounted(() => {
             />
           </label>
         </div>
-        <div class="flex gap-1 items-center">
-          <BaseBtn label="送出" type="submit" theme="submit" />
-          <BaseBtn label="重置" type="reset" theme="reset" />
+        <div class="flex gap-1 items-center justify-between w-full">
+          <div class="flex gap-1">
+            <BaseBtn label="送出" type="submit" theme="submit" />
+            <BaseBtn label="重置" type="reset" theme="reset" />
+          </div>
           <BaseBtn label="清除結果" theme="default" @click="clearRecord" />
         </div>
       </div>

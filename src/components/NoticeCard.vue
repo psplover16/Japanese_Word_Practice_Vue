@@ -107,14 +107,7 @@ const flatLetters = computed(() => letters.map((v) => v.cells).flat());
 const nextStep = () => {
   if (isShowAnswer.value) {
     if (props.textNum - 1 === nowTextIndex.value) {
-      // 錯誤結果
-      setRecord(
-        // 依平假名排序一次（方便閱讀）
-        wrongText.value.sort((a, b) =>
-          a.originalText.hiragana.localeCompare(b.originalText.hiragana, "ja"),
-        ),
-      );
-      noticeCardVisible.value = false;
+      closeCard(false);
       return;
     }
     nowTextIndex.value = nowTextIndex.value + 1;
@@ -156,9 +149,23 @@ const idk = () => {
   nextStep();
 };
 
-const closeCard = () => {
-  if (confirm("確定要結束練習嗎？目前的進度不會被記錄。")) {
-    noticeCardVisible.value = false;
+function close() {
+  noticeCardVisible.value = false;
+  setRecord(
+    // 依平假名排序一次（方便閱讀）
+    wrongText.value.sort((a, b) =>
+      a.originalText.hiragana.localeCompare(b.originalText.hiragana, "ja"),
+    ),
+  );
+}
+
+const closeCard = (isNeedQuestion = true) => {
+  if (isNeedQuestion) {
+    if (confirm("確定要結束練習嗎？目前的進度不會被記錄。")) {
+      close();
+    }
+  } else {
+    close();
   }
 };
 
