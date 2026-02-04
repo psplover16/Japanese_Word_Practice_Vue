@@ -2,6 +2,7 @@
   "name": "Japanese Word Practice",
   "short_name": "JP Practice",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#666666",
   "theme_color": "#666666",
