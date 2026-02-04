@@ -45,7 +45,7 @@ function reload() {
       <BaseBtn label="重新載入" theme="default" @click="reload" />
     </div>
   </div>
-  <div>版本號: {{ APP_VERSION }}</div>
+  <div class="h-8 text-right px-3">版本號: {{ APP_VERSION }}</div>
 </template>
 
 <style lang="scss" scoped>

@@ -19,7 +19,7 @@ const checked = toRef(props, "modelValue");
 </script>
 
 <template>
-  <label class="flex gap-2 items-center text-sm cursor-pointer text-nowrap">
+  <label class="flex gap-1.5 items-center text-sm cursor-pointer text-nowrap">
     <input
       type="checkbox"
       :checked="modelValue"
