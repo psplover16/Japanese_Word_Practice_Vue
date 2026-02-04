@@ -9,7 +9,6 @@ const APP_VERSION =
 
 function handler(e) {
   const detail = e.detail;
-  console.log(detail);
   status.value = detail.status;
 }
 
