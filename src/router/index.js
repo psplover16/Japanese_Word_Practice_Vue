@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { defineAsyncComponent } from "vue";
 
 const layouts = () => import("@/layouts/index.vue");
 const letterPractice = () => import("@/views/letterPractice.vue");
@@ -14,15 +13,16 @@ const routes = [
     children: [
       {
         path: "",
+        name: "Default",
         redirect: { name: "LetterPractice" },
       },
       {
         path: "letter-practice",
         name: "LetterPractice",
         meta: {
-          title: "日語50音練習（平假名 / 片假名）",
+          title: "日語50音練習",
         },
-        component: defineAsyncComponent(letterPractice),
+        component: letterPractice,
       },
       {
         path: "word-practice",
@@ -30,7 +30,7 @@ const routes = [
         meta: {
           title: "日語單詞練習",
         },
-        component: defineAsyncComponent(wordPractice),
+        component: wordPractice,
       },
     ],
   },

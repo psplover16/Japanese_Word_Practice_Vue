@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
-const STORAGE_KEY = "JPPRACTICE_UNKNOWN_COUNTS";
+const STORAGE_KEY = "JP_Letters_Memory_Record";
 
-export default defineStore("localStorageStore", () => {
+export default defineStore("lettersMemory", () => {
   const oldRecord = ref([]);
 
   function checkArrayObjects(arr, keys = []) {

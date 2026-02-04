@@ -33,7 +33,7 @@ const title = computed(() => route.meta.title || "Japanese Word Practice");
 <style lang="scss" scoped>
 .container {
   max-width: 1100px;
-  margin: 24px auto 60px;
+  margin: 24px auto 24px;
   padding: 0 12px;
 }
 </style>

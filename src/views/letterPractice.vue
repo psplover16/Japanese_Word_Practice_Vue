@@ -1,48 +1,50 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
 import { letters } from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
-import useLocalStorageStore from "@/stores/localStorage.js";
+import useLettersMemoryStore from "@/stores/lettersMemory.js";
+import useChooseTestAreaStore from "@/stores/chooseTestArea.js";
 import { storeToRefs } from "pinia";
 
-const localStorage = useLocalStorageStore();
-const { setRecord, setOldRecords, clearRecordAndLocalStorage } = localStorage;
-const { getOldRecord } = storeToRefs(localStorage);
+const lettersMemory = useLettersMemoryStore();
+const chooseTestAreaStore = useChooseTestAreaStore();
+const { setRecord, setOldRecords, clearRecordAndLocalStorage } = lettersMemory;
+const { getOldRecord } = storeToRefs(lettersMemory);
+const { testNum, includeHiragana, includeKatakana } =
+  storeToRefs(chooseTestAreaStore);
 
 // `allChoose` 作為 computed getter/setter，避免額外的 watch 迴圈
 const allChoose = computed({
   get() {
-    return formData.hiragana && formData.katakana && isFullSelection.value;
+    return (
+      includeHiragana.value && includeKatakana.value && isFullSelection.value
+    );
   },
   set(val) {
     if (val) {
       letters.forEach((row, r) => {
         row.cells.forEach((cell, c) => {
-          if (cell?.hiragana && cell?.katakana) selected[`${r}-${c}`] = true;
+          if (cell?.hiragana && cell?.katakana)
+            chooseTestAreaStore.selectedLetters[`${r}-${c}`] = true;
         });
       });
     } else {
-      Object.keys(selected).forEach((k) => (selected[k] = false));
+      Object.keys(chooseTestAreaStore.selectedLetters).forEach(
+        (k) => (chooseTestAreaStore.selectedLetters[k] = false),
+      );
     }
-    formData.hiragana = val;
-    formData.katakana = val;
+    includeHiragana.value = val;
+    includeKatakana.value = val;
   },
 });
 
-const formData = reactive({
-  hiragana: true,
-  katakana: true,
-  testNumber: 5,
-});
-
-// 每個格子的選取狀態，key 使用 `${rowIndex}-${colIndex}`
-const selected = reactive({});
 const lettersSelectedCount = computed(() => {
-  return Object.values(selected).filter((v) => v).length;
+  return Object.values(chooseTestAreaStore.selectedLetters).filter((v) => v)
+    .length;
 });
 
 const isFullSelection = computed(() => {
@@ -59,11 +61,11 @@ const isFullSelection = computed(() => {
 const noticeCardVisible = ref(false);
 
 const instinateTest = () => {
-  if (!formData.hiragana && !formData.katakana) {
+  if (!includeHiragana.value && !includeKatakana.value) {
     alert("請至少選擇平假名或片假名其中一項才能開始出題！");
     return;
   }
-  if (formData.testNumber <= 0) {
+  if (testNum.value <= 0) {
     alert("題數必須大於 0 才能開始出題！");
     return;
   }
@@ -72,12 +74,6 @@ const instinateTest = () => {
     return;
   }
   noticeCardVisible.value = true;
-};
-const resetForm = () => {
-  formData.hiragana = true;
-  formData.katakana = true;
-  formData.testNumber = 5;
-  Object.keys(selected).forEach((k) => (selected[k] = false));
 };
 
 watch(
@@ -109,12 +105,12 @@ onMounted(() => {
     <form
       class="flex flex-col gap-2 justify-center flex-wrap"
       @submit.prevent="instinateTest"
-      @reset.prevent="resetForm"
+      @reset.prevent="chooseTestAreaStore.resetForm"
     >
       <div class="flex gap-1 flex-wrap">
         <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
-          <BaseCheckbox label="題目包含：平假名" v-model="formData.hiragana" />
-          <BaseCheckbox label="題目包含：片假名" v-model="formData.katakana" />
+          <BaseCheckbox label="題目包含：平假名" v-model="includeHiragana" />
+          <BaseCheckbox label="題目包含：片假名" v-model="includeKatakana" />
           <BaseCheckbox label="全選 / 全不選（音節）" v-model="allChoose" />
           <label
             class="flex gap-2 items-center text-sm cursor-pointer text-nowrap"
@@ -127,7 +123,7 @@ onMounted(() => {
               value="5"
               inputmode="numeric"
               class="w-[120px] px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
-              v-model="formData.testNumber"
+              v-model="testNum"
             />
           </label>
         </div>
@@ -151,7 +147,7 @@ onMounted(() => {
         <div>已選音節：{{ lettersSelectedCount }}</div>
         <div>目前題目腳本：平假名＋片假名</div>
       </div>
-      <div class="tableWrap" id="tableWrap">
+      <div>
         <table
           class="w-full border-separate border-spacing-0"
           aria-label="五十音表"
@@ -199,7 +195,11 @@ onMounted(() => {
                 >
                   <input
                     type="checkbox"
-                    v-model="selected[`${rowIndex}-${colIndex}`]"
+                    v-model="
+                      chooseTestAreaStore.selectedLetters[
+                        `${rowIndex}-${colIndex}`
+                      ]
+                    "
                   />
                   <div class="flex flex-col justify-center items-center">
                     <div class="font-bold text-nowrap sm:text-xl text-lg">
@@ -217,14 +217,7 @@ onMounted(() => {
         </table>
       </div>
     </form>
-
-    <NoticeCard
-      v-model="noticeCardVisible"
-      :includeHiragana="formData.hiragana"
-      :includeKatakana="formData.katakana"
-      :textNum="formData.testNumber"
-      :selectedWords="selected"
-    />
+    <NoticeCard v-model="noticeCardVisible" />
   </div>
   <!--  -->
   <div

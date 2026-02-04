@@ -3,32 +3,19 @@ import { ref, watch, computed } from "vue";
 import Mask from "@/components/Mask.vue";
 import BaseBtn from "./BaseBtn.vue";
 import { letters } from "@/constants/jpText.js";
-import useLocalStorageStore from "@/stores/localStorage.js";
+import useLettersMemoryStore from "@/stores/lettersMemory.js";
+import useChooseTestAreaStore from "@/stores/chooseTestArea.js";
 import { storeToRefs } from "pinia";
 
-const localStorage = useLocalStorageStore();
-const { setRecord, setOldRecords } = localStorage;
-const { getOldRecord } = storeToRefs(localStorage);
+const lettersMemory = useLettersMemoryStore();
+const chooseTestAreaStore = useChooseTestAreaStore();
+const { setRecord, setOldRecords } = lettersMemory;
+const { getOldRecord } = storeToRefs(lettersMemory);
+const { dealAllTextDataComputed, testNum } = storeToRefs(chooseTestAreaStore);
 
 const noticeCardVisible = ref(false);
 
 const props = defineProps({
-  includeHiragana: {
-    type: Boolean,
-    default: true,
-  },
-  includeKatakana: {
-    type: Boolean,
-    default: true,
-  },
-  textNum: {
-    type: Number,
-    default: 20,
-  },
-  selectedWords: {
-    type: Object,
-    default: () => ({}),
-  },
   modelValue: {
     type: Boolean,
     default: false,
@@ -38,59 +25,6 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 const nowTextIndex = ref(0);
 const wrongText = ref([]);
-
-// 洗牌陣列（Fisher-Yates 演算法）
-function shuffleInPlace(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-function shuffled(arr) {
-  return shuffleInPlace([...arr]);
-}
-
-const dealAllTextDataComputed = computed(() => {
-  // 轉成陣列處理後再轉回成物件
-  const result = Object.fromEntries(
-    Object.entries(props.selectedWords).filter(([, v]) => v === true),
-  );
-  const textIndex = Object.keys(result).map((k) => k.split("-"));
-  const getAllTextData = textIndex.reduce((acc, cur) => {
-    acc.push(letters[cur[0]].cells[cur[1]]);
-    return acc;
-  }, []);
-
-  let filtered = [];
-  if (props.includeHiragana && props.includeKatakana) {
-    getAllTextData.forEach((item) => {
-      filtered.push({
-        romanization: item.romanization,
-        hiragana: item.hiragana,
-      });
-      filtered.push({
-        romanization: item.romanization,
-        katakana: item.katakana,
-      });
-    });
-  } else if (props.includeHiragana) {
-    getAllTextData.forEach((item) => {
-      filtered.push({
-        romanization: item.romanization,
-        hiragana: item.hiragana,
-      });
-    });
-  } else if (props.includeKatakana) {
-    getAllTextData.forEach((item) => {
-      filtered.push({
-        romanization: item.romanization,
-        katakana: item.katakana,
-      });
-    });
-  }
-  return shuffled(filtered);
-});
 
 const dealAllTextData = ref([]);
 watch(
@@ -106,7 +40,7 @@ const flatLetters = computed(() => letters.map((v) => v.cells).flat());
 
 const nextStep = () => {
   if (isShowAnswer.value) {
-    if (props.textNum - 1 === nowTextIndex.value) {
+    if (testNum.value - 1 === nowTextIndex.value) {
       closeCard(false);
       return;
     }
@@ -199,7 +133,7 @@ watch(noticeCardVisible, (val) => {
         <div
           class="flex justify-between items-center px-4 py-3 border-b border-gray-300 font-bold text-lg no-select"
         >
-          <div>{{ nowTextIndex + 1 }} / {{ textNum }}</div>
+          <div>{{ nowTextIndex + 1 }} / {{ testNum }}</div>
           <div @click="closeCard" class="cursor-pointer">X</div>
         </div>
 
