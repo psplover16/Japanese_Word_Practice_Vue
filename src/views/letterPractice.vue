@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch, nextTick } from "vue";
 
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import { letters, dakutenMap } from "@/constants/jpText.js";
+import { letters, dakutenMap, youon, sokuon } from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
 import useLettersMemoryStore from "@/stores/lettersMemory.js";
@@ -145,10 +145,7 @@ onMounted(() => {
         <div>
           <BaseCheckbox label="濁音/半濁音" v-model="includeDakuten" />
           <BaseCheckbox label="促音" v-model="includeSokuon" />
-          <BaseCheckbox
-            label="拗音與其他 (長音符等等...)"
-            v-model="includeYouon"
-          />
+          <BaseCheckbox label="拗音/合拗音/長音符" v-model="includeYouon" />
         </div>
         <div class="flex gap-1 items-center justify-between w-full">
           <div class="flex gap-1">
@@ -270,6 +267,101 @@ onMounted(() => {
       </tr>
     </table>
 
+    <!-- youon, sokuon -->
+    <table class="w-full border-separate border-spacing-0 mt-3">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            colspan="4"
+          >
+            拗音：由「い段假名＋小ゃ／小ゅ／小ょ」組成，把原本的音往 ya / yu /
+            yo 方向縮合成一拍來念。
+          </th>
+        </tr>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            colspan="4"
+          >
+            合拗音：拗音的濁音或半濁音版本（如
+            ぎゃ／じゃ／ぴょ），念法與拗音相同，只是加上濁音或半濁音。
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, rowIndex) in youon" :key="rowIndex">
+          <th
+            class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+          >
+            <div
+              class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
+            >
+              <div class="font-extrabold text-primary">
+                {{ row?.base }}
+              </div>
+            </div>
+          </th>
+          <td
+            v-for="(detailData, colIndex) in row.data"
+            :key="colIndex"
+            class="border border-gray-300 p-0.5 relative bg-white no-select"
+            :colspan="4 - row.data.length"
+          >
+            <div class="flex flex-col justify-center items-center">
+              <div class="font-bold text-nowrap sm:text-xl text-lg">
+                {{
+                  `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
+                }}
+              </div>
+              <div class="font-semibold text-xs text-muted">
+                {{ detailData?.romanization }}
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full border-separate border-spacing-0 mt-3">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            colspan="4"
+          >
+            {{ sokuon.romanization }}: {{ sokuon.rule }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th
+            class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+          >
+            <div
+              class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
+            >
+              <div class="font-extrabold text-primary">
+                {{ sokuon?.romanization }}
+              </div>
+            </div>
+          </th>
+          <td class="border border-gray-300 p-0.5 relative bg-white no-select">
+            <div class="flex flex-col justify-center items-center">
+              <div class="font-bold text-nowrap sm:text-xl text-lg">
+                {{
+                  `${sokuon?.hiragana} ${sokuon?.katakana && "/"} ${sokuon?.katakana}`
+                }}
+              </div>
+              <div class="font-semibold text-xs text-muted">
+                {{ sokuon?.romanization }}
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <NoticeCard v-model="noticeCardVisible" />
   </div>
   <!--  -->
