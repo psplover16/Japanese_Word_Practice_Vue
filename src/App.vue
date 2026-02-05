@@ -8,9 +8,9 @@ const APP_VERSION =
   typeof __APP_VERSION__ === "undefined" ? "dev" : __APP_VERSION__;
 
 function handler(e) {
-  alert("e.detail", e.detail);
-  alert("e.detail.status", e.detail.status);
   if (!e || !e.detail) return;
+  alert("e.detail: " + JSON.stringify(e.detail));
+  alert("e.detail.status: " + (e.detail.status ?? "undefined"));
   const { status: s } = e.detail;
   status.value = s;
 }
