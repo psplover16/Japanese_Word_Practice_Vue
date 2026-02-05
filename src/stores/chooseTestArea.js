@@ -8,12 +8,10 @@ export default defineStore("chooseTestArea", () => {
   const selectedLetters = reactive({});
   const testNum = ref(5);
   const includeHiragana = ref(true);
-  const includeKatakana = ref(false);
+  const includeKatakana = ref(true);
   const includeDakuten = ref(false);
   const includeSokuon = ref(false);
   const includeYouon = ref(false);
-
-
 
   const getChoosedLettersData = computed(() => {
     // 轉成陣列處理後再轉回成物件
@@ -40,11 +38,11 @@ export default defineStore("chooseTestArea", () => {
     }
 
     if (includeYouon.value) {
-      tmpData = tmpData.concat(youon);
+      const tmp = youon.map((item) => (item.data));
+      tmpData = tmpData.concat(tmp.flat());
     }
     return tmpData;
   });
-
 
   const dealAllTextDataComputed = computed(() => {
     let filtered = [];
@@ -74,7 +72,21 @@ export default defineStore("chooseTestArea", () => {
         });
       });
     }
-    return shuffled(filtered);
+
+    // 如果沒有選擇平假名和片假名，則不顯示任何題目
+    if (filtered.length === 0) return [];
+
+    // base = 原始候選，不再被 mutate
+    const base = filtered.slice();
+    const result = [];
+
+    // 題目數量大於篩選後的資料長度時，添加打亂順序的資料
+    while (result.length < testNum.value) {
+      result.push(...shuffled(base));
+    }
+
+    // 截取恰好需要的數量，再打散
+    return shuffled(result.slice(0, testNum.value));
   });
 
   const resetForm = () => {
@@ -84,11 +96,8 @@ export default defineStore("chooseTestArea", () => {
     includeSokuon.value = false;
     includeYouon.value = false;
     testNum.value = 5;
-    Object.keys(selectedLetters).forEach(
-      (k) => (selectedLetters[k] = false),
-    );
+    Object.keys(selectedLetters).forEach((k) => (selectedLetters[k] = false));
   };
-
 
   return {
     selectedLetters,
@@ -102,9 +111,6 @@ export default defineStore("chooseTestArea", () => {
     resetForm,
     getChoosedLettersData,
     dealAllTextDataComputed,
-    kanaWithDakutenAndSokuonData
+    kanaWithDakutenAndSokuonData,
   };
 });
-
-
-

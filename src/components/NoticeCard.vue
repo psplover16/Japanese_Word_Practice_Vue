@@ -30,6 +30,7 @@ const dealAllTextData = ref([]);
 watch(
   () => [dealAllTextDataComputed.value, props.modelValue],
   ([val1, val2]) => {
+    // dealAllTextDataComputed 本身已經被打亂過一次
     dealAllTextData.value = val1;
   },
   { immediate: true },
@@ -46,10 +47,6 @@ const nextStep = () => {
     }
     nowTextIndex.value = nowTextIndex.value + 1;
     isAlreadyClickIdk.value = false;
-    if (nowTextIndex.value > dealAllTextData.value.length - 1) {
-      // 再打亂一次
-      dealAllTextData.value.push(...shuffled(dealAllTextDataComputed.value));
-    }
   }
   isShowAnswer.value = !isShowAnswer.value;
 };
