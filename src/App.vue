@@ -37,7 +37,7 @@ onMounted(() => {
       setStatus("✅ 可離線使用", 1500);
     },
 
-    // SW 已成功註冊（但不代表已啟用）
+    // SW 已成功註冊（但不代表已啟用）- 沒整個刪掉，通常SW期限很久
     onRegistered(registration) {
       console.log(registration);
       setStatus("正在下載應用資源\n完成後可離線使用", 2000);
