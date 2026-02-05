@@ -1,53 +1,69 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
+import { registerSW } from "virtual:pwa-register";
 import BaseBtn from "@/components/BaseBtn.vue";
 
-const status = ref();
-// 讓模板可以存取版本號，同時提供開發時的 fallback
 const APP_VERSION =
   typeof __APP_VERSION__ === "undefined" ? "dev" : __APP_VERSION__;
 
-function handler(e) {
-  if (!e || !e.detail) return;
-  alert("e.detail: " + JSON.stringify(e.detail));
-  alert("e.detail.status: " + (e.detail.status ?? "undefined"));
-  const { status: s } = e.detail;
-  status.value = s;
-}
+const status = ref("");
+
+let updateSW;
+let statusTimer = null;
+
+const setStatus = (text, autoClearMs) => {
+  // 取消舊的 timer
+  if (statusTimer) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+  status.value = text;
+  if (autoClearMs) {
+    statusTimer = setTimeout(() => {
+      status.value = "";
+      statusTimer = null;
+    }, autoClearMs);
+  }
+};
 
 onMounted(() => {
-  // 使用 globalThis（lint 偏好）來註冊自訂事件 listener
-  globalThis.addEventListener("pwa-status", handler);
-});
+  // PWA Service Worker 註冊
+  updateSW = registerSW({
+    // onNeedRefresh之後，新 SW 是不是立刻接管目前頁面
+    immediate: false,
 
-onUnmounted(() => {
-  globalThis.removeEventListener("pwa-status", handler);
-});
+    // 第一次可離線
+    onOfflineReady() {
+      setStatus("✅ 可離線使用", 1500);
+    },
 
-function reload() {
-  // 若要更穩定可以配合 skipWaiting/controllerchange 流程，這裡先做簡單 reload
-  globalThis.location.reload();
-}
+    // SW 已成功註冊（但不代表已啟用）
+    onRegistered(registration) {
+      console.log(registration);
+      setStatus("正在下載應用資源\n完成後可離線使用", 2000);
+    },
+
+    // 新 Service Worker 已下載完成，但正在 waiting，還沒套用
+    onNeedRefresh() {
+      const time = 1500;
+      setStatus("✅ 下載完成", time);
+      setTimeout(() => {
+        updateSW(true);
+      }, time);
+    },
+
+    // 錯誤
+    onRegisterError(error) {
+      console.error("[PWA] SW registration error", error);
+    },
+  });
+});
 </script>
 
 <template>
   <router-view />
-  <div class="banner" v-if="status === 'downloading' || status === 'ready'">
-    <div
-      v-if="status === 'downloading'"
-      class="banner flex flex-col items-center"
-    >
-      <div class="text-nowrap">正在下載應用資源</div>
-      <div class="text-nowrap">完成後可離線使用</div>
-    </div>
-
-    <div
-      v-if="status === 'ready'"
-      class="banner flex flex-col items-center gap-y-1"
-    >
-      <div class="text-nowrap">✅ 下載完成</div>
-      <BaseBtn label="重新載入" theme="default" @click="reload" />
-    </div>
+  <div class="banner" v-if="!!status">
+    <div class="whitespace-pre-wrap break-words">{{ status }}</div>
   </div>
   <div class="h-8 text-right px-3">版本號: {{ APP_VERSION }}</div>
 </template>

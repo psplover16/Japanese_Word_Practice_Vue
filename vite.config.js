@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       vue(),
-      // 先用 Vite bundle sw-base.js >>> inject manifest
       VitePWA({
         // 使用 GenerateSW 模式，自動產生 service worker
         // injectManifest 模式需要你自己撰寫 sw.js，並在 build 時注入 precache 清單
@@ -69,6 +68,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
       rollupOptions: {
         output: {
           // 將第三方庫打包到單獨的 chunk 中
