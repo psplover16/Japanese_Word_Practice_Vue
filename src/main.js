@@ -16,7 +16,9 @@ app.mount("#app");
 // PWA Service Worker 註冊
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register(`${import.meta.env.BASE_URL}sw.js`)
+    .register(`${import.meta.env.BASE_URL}sw.js`, {
+      type: "module",
+    })
     .then((reg) => {
       console.log("[SW] registered", reg);
       //
