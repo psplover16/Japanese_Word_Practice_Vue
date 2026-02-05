@@ -10,11 +10,13 @@ const APP_VERSION =
 function handler(e) {
   alert("e.detail", e.detail);
   alert("e.detail.status", e.detail.status);
-  const detail = e.detail;
-  status.value = detail.status;
+  if (!e || !e.detail) return;
+  const { status: s } = e.detail;
+  status.value = s;
 }
 
 onMounted(() => {
+  // 使用 globalThis（lint 偏好）來註冊自訂事件 listener
   globalThis.addEventListener("pwa-status", handler);
 });
 
@@ -23,6 +25,7 @@ onUnmounted(() => {
 });
 
 function reload() {
+  // 若要更穩定可以配合 skipWaiting/controllerchange 流程，這裡先做簡單 reload
   globalThis.location.reload();
 }
 </script>

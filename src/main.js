@@ -18,6 +18,7 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register(`${import.meta.env.BASE_URL}sw.js`)
     .then((reg) => {
+      console.log("[SW] registered", reg);
       //
       // Service Worker 的生命週期中，每個 worker 會依序經過
       // installing → installed → activating → activated。
@@ -28,16 +29,23 @@ if ("serviceWorker" in navigator) {
       // waiting 出現的典型原因：你部署了新的 sw.js；瀏覽器下載並安裝完新的 worker，但現有頁面仍由舊的 worker 控制，所以新 worker 先等候（waiting）直到舊的 worker 釋放控制權。
       //
       // 若頁面載入時已存在 waiting worker，代表有更新可用
-      if (reg.waiting && navigator.serviceWorker.controller) {
-        globalThis.dispatchEvent(
-          new CustomEvent("pwa-status", { detail: { status: "ready" } }),
-        );
+      try {
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          console.log("[SW] found waiting worker on load");
+          globalThis.dispatchEvent(
+            new CustomEvent("pwa-status", { detail: { status: "ready" } }),
+          );
+        }
+      } catch (e) {
+        console.warn("[SW] checking waiting failed", e);
       }
 
       // 🔔 有新版本 / 開始下載
       reg.addEventListener("updatefound", () => {
         const worker = reg.installing;
         if (!worker) return;
+
+        console.log("[SW] updatefound - installing", worker);
 
         globalThis.dispatchEvent(
           new CustomEvent("pwa-status", {
@@ -46,9 +54,11 @@ if ("serviceWorker" in navigator) {
         );
 
         worker.addEventListener("statechange", () => {
+          console.log("[SW] installing statechange", worker.state);
           if (worker.state === "installed") {
             // 有 controller 表示是「更新」，沒有則是首次安裝
             const isUpdate = !!navigator.serviceWorker.controller;
+            console.log("[SW] installed - isUpdate:", isUpdate);
             if (isUpdate) {
               globalThis.dispatchEvent(
                 new CustomEvent("pwa-status", { detail: { status: "ready" } }),
@@ -59,5 +69,6 @@ if ("serviceWorker" in navigator) {
           }
         });
       });
-    });
+    })
+    .catch((err) => console.error("[SW] register failed", err));
 }
