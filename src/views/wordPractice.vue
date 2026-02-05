@@ -25,6 +25,7 @@ const isShowRomanization = ref(false);
 const isShowMeaning = ref(false);
 const wantNoteId = ref({});
 const isShowAllWords = ref(false);
+const isOnlyShowNotedWords = ref(false);
 
 // 平假名轉片假名 + 片假名轉平假名
 function swapKana(str) {
@@ -99,7 +100,7 @@ const addIdwordPracticeText = computed(() => {
   }));
 });
 
-const resultData = computed(() => {
+const filteredData = computed(() => {
   if (isShowAllWords.value) {
     return addIdwordPracticeText.value;
   }
@@ -107,6 +108,14 @@ const resultData = computed(() => {
     addIdwordPracticeText.value,
     kanaWithDakutenAndSokuonData.value,
   );
+});
+
+const resultData = computed(() => {
+  // filteredData 進一步過濾只顯示註記的單字
+  if (isOnlyShowNotedWords.value) {
+    return filteredData.value.filter((item) => item.note);
+  }
+  return filteredData.value;
 });
 
 watch(
@@ -162,9 +171,12 @@ onMounted(() => {
   <div
     class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
   >
-    <div class="flex justify-between">
+    <div class="flex justify-between items-center">
       <span>{{ resultData.length }}個單字</span>
-      <BaseCheckbox label="顯示全部" v-model="isShowAllWords" />
+      <div>
+        <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
+        <BaseCheckbox label="只顯示註記" v-model="isOnlyShowNotedWords" />
+      </div>
     </div>
     <div class="flex justify-between" v-if="resultData.length > 0">
       <BaseBtn label="儲存註記" theme="default" @click="saveNote" />
@@ -200,53 +212,60 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
+          <!-- index 是雷點，因為並非穩定為一，會讓 Vue 在 diff 時錯把 DOM 元素重用到不同的資料上，導致事件、元件狀態、checkbox、長按 flag 等和資料錯位 -->
           <tr
-            v-for="(value, index) in resultData"
-            :key="index"
-            :class="{ 'bg-red-200': value.note }"
+            v-for="(resultDataVal, index) in resultData"
+            :key="resultDataVal.id"
+            :class="{ 'bg-red-200': resultDataVal.note }"
             v-longPress="{
-              handler: () => onRowLongPress(value.id),
-              onRelease: (e) => onRowLongPressRelease(value.id),
-              duration: 600,
+              handler: () => onRowLongPress(resultDataVal.id),
+              onRelease: () => onRowLongPressRelease(resultDataVal.id),
+              duration: 400,
             }"
-            @click="onRowClick(value.id)"
+            @click="onRowClick(resultDataVal.id)"
           >
             <td class="tdStyle no-select">
               <span
-                :class="{ invisible: !isShowWords && !isLongPress[value.id] }"
+                :class="{
+                  invisible: !isShowWords && !isLongPress[resultDataVal.id],
+                }"
               >
-                {{ value.text }}
+                {{ resultDataVal.text }}
               </span>
             </td>
             <td class="tdStyle no-select">
               <span
                 :class="{
-                  invisible: !isShowPracticeWords && !isLongPress[value.id],
+                  invisible:
+                    !isShowPracticeWords && !isLongPress[resultDataVal.id],
                 }"
               >
-                {{ swapKana(value.text) }}
+                {{ swapKana(resultDataVal.text) }}
               </span>
             </td>
             <td class="tdStyle no-select">
               <span
                 :class="{
-                  invisible: !isShowRomanization && !isLongPress[value.id],
+                  invisible:
+                    !isShowRomanization && !isLongPress[resultDataVal.id],
                 }"
               >
-                {{ value.romanization }}
+                {{ resultDataVal.romanization }}
               </span>
             </td>
             <td class="tdStyle no-select">
               <span
-                :class="{ invisible: !isShowMeaning && !isLongPress[value.id] }"
+                :class="{
+                  invisible: !isShowMeaning && !isLongPress[resultDataVal.id],
+                }"
               >
-                {{ value.meaning }}
+                {{ resultDataVal.meaning }}
               </span>
             </td>
             <td class="border border-gray-300 p-2 relative bg-white no-select">
               <BaseCheckbox
                 label=""
-                v-model="wantNoteId[value.id]"
+                v-model="wantNoteId[resultDataVal.id]"
                 @click.stop
               />
             </td>

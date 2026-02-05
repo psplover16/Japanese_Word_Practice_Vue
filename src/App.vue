@@ -8,6 +8,8 @@ const APP_VERSION =
   typeof __APP_VERSION__ === "undefined" ? "dev" : __APP_VERSION__;
 
 function handler(e) {
+  alert("e.detail", e.detail);
+  alert("e.detail.status", e.detail.status);
   const detail = e.detail;
   status.value = detail.status;
 }
