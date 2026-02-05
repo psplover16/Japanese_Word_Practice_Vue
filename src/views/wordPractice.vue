@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
 import wordPracticeText from "@/constants/jpWords.js";
@@ -7,6 +7,11 @@ import wordPracticeText from "@/constants/jpWords.js";
 import useWordsMemoryStore from "@/stores/wordsMemory.js";
 import useChooseTestAreaStore from "@/stores/chooseTestArea.js";
 import { storeToRefs } from "pinia";
+import longPress from "@/directives/longPress";
+
+defineOptions({
+  directives: { longPress },
+});
 
 const wordsMemory = useWordsMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
@@ -89,7 +94,7 @@ function filterWordPracticeText(
 const addIdwordPracticeText = computed(() => {
   return wordPracticeText.map((item, index) => ({
     id: index,
-    note: getNoticeWords.value.some((val) => val === index),
+    note: getNoticeWords.value.includes(index),
     ...item,
   }));
 });
@@ -136,6 +141,17 @@ const deleteNote = () => {
 const onRowClick = (id) => {
   wantNoteId.value[id] = !wantNoteId.value[id];
 };
+
+const isLongPress = ref({});
+
+function onRowLongPress(id) {
+  isLongPress.value[id] = true;
+}
+
+function onRowLongPressRelease(id) {
+  // 長按放開時的範例：切換註記並關閉長按狀態
+  isLongPress.value[id] = false;
+}
 
 onMounted(() => {
   setOldStorageData();
@@ -188,25 +204,42 @@ onMounted(() => {
             v-for="(value, index) in resultData"
             :key="index"
             :class="{ 'bg-red-200': value.note }"
+            v-longPress="{
+              handler: () => onRowLongPress(value.id),
+              onRelease: (e) => onRowLongPressRelease(value.id),
+              duration: 600,
+            }"
             @click="onRowClick(value.id)"
           >
             <td class="tdStyle no-select">
-              <span :class="{ invisible: !isShowWords }">
+              <span
+                :class="{ invisible: !isShowWords && !isLongPress[value.id] }"
+              >
                 {{ value.text }}
               </span>
             </td>
             <td class="tdStyle no-select">
-              <span :class="{ invisible: !isShowPracticeWords }">
+              <span
+                :class="{
+                  invisible: !isShowPracticeWords && !isLongPress[value.id],
+                }"
+              >
                 {{ swapKana(value.text) }}
               </span>
             </td>
             <td class="tdStyle no-select">
-              <span :class="{ invisible: !isShowRomanization }">
+              <span
+                :class="{
+                  invisible: !isShowRomanization && !isLongPress[value.id],
+                }"
+              >
                 {{ value.romanization }}
               </span>
             </td>
             <td class="tdStyle no-select">
-              <span :class="{ invisible: !isShowMeaning }">
+              <span
+                :class="{ invisible: !isShowMeaning && !isLongPress[value.id] }"
+              >
                 {{ value.meaning }}
               </span>
             </td>

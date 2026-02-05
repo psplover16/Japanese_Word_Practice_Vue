@@ -91,6 +91,17 @@ const instinateTest = () => {
   noticeCardVisible.value = true;
 };
 
+const combineBasicSoundCombinations = (data) => {
+  const result = [];
+  data.hiragana.forEach((item, index) => {
+    result.push({
+      words: `${item}/${data.katakana[index]}`,
+      romanization: data.romanization[index],
+    });
+  });
+  return result;
+};
+
 watch(
   getOldRecord,
   async (val) => {
@@ -122,7 +133,7 @@ onMounted(() => {
       @submit.prevent="instinateTest"
       @reset.prevent="chooseTestAreaStore.resetForm"
     >
-      <div class="flex gap-1 flex-wrap">
+      <div class="flex gap-y-1 gap-x-3 flex-wrap">
         <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
           <BaseCheckbox label="題目包含：平假名" v-model="includeHiragana" />
           <BaseCheckbox label="題目包含：片假名" v-model="includeKatakana" />
@@ -142,7 +153,7 @@ onMounted(() => {
             />
           </label>
         </div>
-        <div>
+        <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
           <BaseCheckbox label="濁音/半濁音" v-model="includeDakuten" />
           <BaseCheckbox label="促音" v-model="includeSokuon" />
           <BaseCheckbox label="拗音/合拗音/長音符" v-model="includeYouon" />
@@ -174,6 +185,11 @@ onMounted(() => {
         >
           <thead>
             <tr>
+              <td colspan="6">清音：沒有濁點（゛）或半濁點（゜）的基本假名音</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
               <th
                 class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
               >
@@ -187,8 +203,6 @@ onMounted(() => {
                 {{ value.hiragana }}段
               </th>
             </tr>
-          </thead>
-          <tbody>
             <tr v-for="(row, rowIndex) in letters" :key="rowIndex">
               <th
                 class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
@@ -267,41 +281,72 @@ onMounted(() => {
       </tr>
     </table>
 
-    <!-- youon, sokuon -->
     <table class="w-full border-separate border-spacing-0 mt-3">
       <thead>
         <tr>
-          <th
-            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
-            colspan="4"
-          >
-            拗音：由「い段假名＋小ゃ／小ゅ／小ょ」組成，把原本的音往 ya / yu /
-            yo 方向縮合成一拍來念。
-          </th>
-        </tr>
-        <tr>
-          <th
-            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
-            colspan="4"
-          >
-            合拗音：拗音的濁音或半濁音版本（如
-            ぎゃ／じゃ／ぴょ），念法與拗音相同，只是加上濁音或半濁音。
-          </th>
+          <td colspan="4">進階</td>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(row, rowIndex) in youon" :key="rowIndex">
-          <th
-            class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-          >
-            <div
-              class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
+        <template v-for="(row, rowIndex) in youon" :key="rowIndex">
+          <tr>
+            <td
+              class="bg-neutral-100 font-bold text-base p-1 border border-gray-30 whitespace-pre-wrap"
+              colspan="4"
             >
-              <div class="font-extrabold text-primary">
-                {{ row?.base }}
+              {{ row?.base }}：{{ row?.note }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              class="w-[60px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+            >
+              <div
+                class="flex flex-col items-center justify-center gap-0.5 text-sm"
+              >
+                <div class="font-extrabold text-primary">基本音</div>
               </div>
-            </div>
-          </th>
+            </td>
+            <td class="border border-gray-300 bg-neutral-100" colspan="3">
+              <div class="flex justify-around">
+                <div
+                  class="bg-neutral-100 font-bold p-0.5 flex items-center flex-col justify-center text-xs sm:text-base md:text-lg px-1"
+                  v-for="value in combineBasicSoundCombinations(
+                    row.basicSoundCombinations,
+                  )"
+                  :key="value.romanization"
+                >
+                  <div>{{ value.words }}</div>
+                  <div>{{ value.romanization }}</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td
+              class="border border-gray-300 p-0.5 relative bg-white no-select"
+            ></td>
+            <td
+              v-for="(detailData, colIndex) in row.data"
+              :key="colIndex"
+              class="border border-gray-300 p-0.5 relative bg-white no-select"
+              :colspan="4 - row.data.length"
+            >
+              <div class="flex flex-col justify-center items-center">
+                <div class="font-bold text-nowrap sm:text-xl text-lg">
+                  {{
+                    `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
+                  }}
+                </div>
+                <div class="font-semibold text-xs text-muted">
+                  {{ detailData?.romanization }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </template>
+
+        <tr v-for="(row, rowIndex) in youon" :key="rowIndex" v-show="false">
           <td
             v-for="(detailData, colIndex) in row.data"
             :key="colIndex"
