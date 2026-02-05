@@ -19,6 +19,8 @@ const { setOldStorageData, setWordsStorage, clearWordsStorage } = wordsMemory;
 const { kanaWithDakutenAndSokuonData } = storeToRefs(chooseTestAreaStore);
 const { getNoticeWords } = storeToRefs(wordsMemory);
 
+const isLongPress = ref({});
+
 const isShowWords = ref(true);
 const isShowPracticeWords = ref(false);
 const isShowRomanization = ref(false);
@@ -26,6 +28,8 @@ const isShowMeaning = ref(false);
 const wantNoteId = ref({});
 const isShowAllWords = ref(false);
 const isOnlyShowNotedWords = ref(false);
+const isDeleteAllNote = ref(false);
+const searchText = ref("");
 
 // 平假名轉片假名 + 片假名轉平假名
 function swapKana(str) {
@@ -100,33 +104,38 @@ const addIdwordPracticeText = computed(() => {
   }));
 });
 
-const filteredData = computed(() => {
-  if (isShowAllWords.value) {
-    return addIdwordPracticeText.value;
-  }
-  return filterWordPracticeText(
-    addIdwordPracticeText.value,
-    kanaWithDakutenAndSokuonData.value,
-  );
-});
+const filterSearchText = (text, searchText) => {
+  const searchLower = searchText.toLowerCase();
+  return text.toLowerCase().includes(searchLower);
+};
 
 const resultData = computed(() => {
-  // filteredData 進一步過濾只顯示註記的單字
-  if (isOnlyShowNotedWords.value) {
-    return filteredData.value.filter((item) => item.note);
+  let sendData;
+  // 顯示全部文字的話，就不過濾
+  if (isShowAllWords.value) {
+    sendData = addIdwordPracticeText.value;
+  } else {
+    sendData = filterWordPracticeText(
+      addIdwordPracticeText.value,
+      kanaWithDakutenAndSokuonData.value,
+    );
   }
-  return filteredData.value;
+  // 過濾只顯示註記的單字
+  if (isOnlyShowNotedWords.value) {
+    sendData = sendData.filter((item) => item.note);
+  }
+  // 搜尋功能，過濾掉不包含搜尋字串的單字
+  if (searchText.value.trim() !== "") {
+    // 轉成英文小寫，讓大小寫不分
+    sendData = sendData.filter(
+      (item) =>
+        filterSearchText(item.text, searchText.value) ||
+        filterSearchText(item.romanization, searchText.value) ||
+        filterSearchText(item.meaning, searchText.value),
+    );
+  }
+  return sendData;
 });
-
-watch(
-  () => getNoticeWords.value,
-  (newVal) => {
-    newVal.forEach((valId) => {
-      wantNoteId.value[valId] = true;
-    });
-  },
-  { deep: true },
-);
 
 // 把物件內值為true的key抽出來
 const trueKeys = (o) =>
@@ -140,18 +149,21 @@ const saveNote = () => {
     setWordsStorage(trueKeys(wantNoteId.value));
   }
 };
-const deleteNote = () => {
+
+const onDeleteAllChange = (e) => {
+  // 避免點擊刪除全部註記後，checkbox變成勾選狀態
+  if (!e.target.checked) return;
   if (confirm("確定要刪除全部註記嗎？")) {
     clearWordsStorage();
     wantNoteId.value = {};
+  } else {
+    isDeleteAllNote.value = false;
   }
 };
 
 const onRowClick = (id) => {
   wantNoteId.value[id] = !wantNoteId.value[id];
 };
-
-const isLongPress = ref({});
 
 function onRowLongPress(id) {
   isLongPress.value[id] = true;
@@ -162,6 +174,16 @@ function onRowLongPressRelease(id) {
   isLongPress.value[id] = false;
 }
 
+watch(
+  () => getNoticeWords.value,
+  (newVal) => {
+    newVal.forEach((valId) => {
+      wantNoteId.value[valId] = true;
+    });
+  },
+  { deep: true },
+);
+
 onMounted(() => {
   setOldStorageData();
 });
@@ -171,44 +193,55 @@ onMounted(() => {
   <div
     class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
   >
-    <div class="flex justify-between items-center">
-      <span>{{ resultData.length }}個單字</span>
+    <div class="flex justify-between items-center gap-8">
+      <input
+        type="input"
+        class="grow h-8 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+        placeholder="搜尋"
+        v-model="searchText"
+      />
       <div>
         <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
         <BaseCheckbox label="只顯示註記" v-model="isOnlyShowNotedWords" />
       </div>
     </div>
-    <div class="flex justify-between" v-if="resultData.length > 0">
-      <BaseBtn label="儲存註記" theme="default" @click="saveNote" />
-      <BaseBtn label="刪除全部註記" theme="reset" @click="deleteNote" />
+    <div class="flex justify-between items-center">
+      <span>{{ resultData.length }}個單字</span>
+      <BaseBtn
+        label="儲存註記"
+        theme="default"
+        @click="saveNote"
+        :class="{
+          invisible: resultData.length === 0,
+        }"
+      />
     </div>
     <div class="overflow-y-auto tableMaxHeight">
       <table class="w-full border-separate border-spacing-0">
         <thead class="sticky top-0 bg-neutral-100 z-10">
           <tr>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="單字" v-model="isShowWords" />
             </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
             </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="拼音" v-model="isShowRomanization" />
             </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="中文" v-model="isShowMeaning" />
             </th>
-            <th
-              class="w-8 bg-neutral-100 font-bold text-xs p-2 border border-gray-300"
-            ></th>
+            <th class="thStyle">
+              <div class="flex justify-center">
+                <input
+                  type="checkbox"
+                  v-model="isDeleteAllNote"
+                  @change="onDeleteAllChange"
+                  title="刪除全部註記"
+                />
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -263,11 +296,13 @@ onMounted(() => {
               </span>
             </td>
             <td class="border border-gray-300 p-2 relative bg-white no-select">
-              <BaseCheckbox
-                label=""
-                v-model="wantNoteId[resultDataVal.id]"
-                @click.stop
-              />
+              <div class="flex justify-center">
+                <input
+                  type="checkbox"
+                  v-model="wantNoteId[resultDataVal.id]"
+                  @click.stop
+                />
+              </div>
             </td>
           </tr>
         </tbody>
@@ -277,6 +312,15 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.thStyle {
+  border: 1px solid #d1d5db;
+  position: relative;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 2px;
+  background-color: #f3f4f6;
+  font-weight: 700;
+}
 .tdStyle {
   border: 1px solid #d1d5db;
   position: relative;
