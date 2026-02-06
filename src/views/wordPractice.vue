@@ -191,16 +191,16 @@ onMounted(() => {
 
 <template>
   <div
-    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
+    class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
   >
-    <div class="flex justify-between items-center gap-8">
+    <div class="flex justify-between items-center gap-5">
       <input
-        type="input"
-        class="grow h-8 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+        type="text"
+        class="flex-1 w-0 h-8 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
         placeholder="搜尋"
         v-model="searchText"
       />
-      <div>
+      <div class="w-[90px]">
         <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
         <BaseCheckbox label="只顯示註記" v-model="isOnlyShowNotedWords" />
       </div>
@@ -332,12 +332,11 @@ onMounted(() => {
   }
 }
 .tableMaxHeight {
-  // 儲存按鈕 32 + 儲存按鈕與表格間距 8 + 按鈕父層容器padding 16 + border 1px + 按鈕父層容器margin-top 12
-  // title 32，title上方margin 24
-  // 125px
-  //
-  // 按鈕父層容器padding 16 + border 1px + layout底部margin 24 + 版本號32px
-  // 113
-  max-height: calc(100dvh - 198px);
+  // 標題32 + title上方margin24
+  // table父層容器 border1*2 +marginTop12 + padding16*2
+  // 搜尋列40  儲存32  gap-2*2
+
+  // 版本號高度40
+  max-height: calc(100dvh - 230px);
 }
 </style>

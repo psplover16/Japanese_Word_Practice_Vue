@@ -40,7 +40,12 @@ onMounted(() => {
     // SW 已成功註冊（但不代表已啟用）- 沒整個刪掉，通常SW期限很久
     onRegistered(registration) {
       console.log(registration);
-      setStatus("正在下載應用資源\n完成後可離線使用", 2000);
+      // 只有在有 installing worker（代表有新版本正在下載）時才顯示「下載中」訊息。
+      // registerSW 會在每次頁面載入時呼叫註冊流程，onRegistered 不代表正在下載新資源，
+      // 因此直接顯示訊息會導致每次開頁都看到提示。
+      if (registration && registration.installing) {
+        setStatus("正在下載應用資源\n完成後可離線使用", 2000);
+      }
     },
 
     // 新 Service Worker 已下載完成，但正在 waiting，還沒套用
@@ -65,7 +70,9 @@ onMounted(() => {
   <div class="banner" v-if="!!status">
     <div class="whitespace-pre-wrap break-words">{{ status }}</div>
   </div>
-  <div class="h-8 text-right px-3">版本號: {{ APP_VERSION }}</div>
+  <div class="h-10 flex justify-end items-center px-3 max-w-[1100px] mx-auto">
+    版本號: {{ APP_VERSION }}
+  </div>
 </template>
 
 <style lang="scss" scoped>
