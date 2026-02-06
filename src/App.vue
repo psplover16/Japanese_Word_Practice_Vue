@@ -71,7 +71,7 @@ onMounted(() => {
     <div class="whitespace-pre-wrap break-words">{{ status }}</div>
   </div>
   <div class="h-10 flex justify-end items-center px-3 max-w-[1100px] mx-auto">
-    版本號: {{ APP_VERSION }}
+    {{ APP_VERSION }}
   </div>
 </template>
 
