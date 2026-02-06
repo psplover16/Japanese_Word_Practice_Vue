@@ -4,8 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- 禁止縮放 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
   <title>jp_practice</title>
+  <!-- pwa，因為IOS幾乎不吃manifest.json -->
+  <link rel="apple-touch-icon" href="/icons/180.png">
+  <!-- 該網站當成APP執行 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- 控制 iOS 狀態列（時間、電量那條）樣式 -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <!-- iOS 主畫面顯示的 App 名稱 -->
+  <meta name="apple-mobile-web-app-title" content="JP Practice">
 </head>
 
 <body>

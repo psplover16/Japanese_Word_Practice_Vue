@@ -9,6 +9,17 @@ body {
     margin: 0;
     // 關閉（抑制）元素在超出滾動邊界時的預設行為
     overscroll-behavior: none;
+    // 禁止用戶選取文本
+    -webkit-user-select: none; /* iOS Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge 舊版 */
+    user-select: none; /* 標準 */
+}
+
+input,
+textarea,
+select {
+    font-size: 16px;
 }
 
 body {

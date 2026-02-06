@@ -19,11 +19,12 @@ export default defineConfig(({ mode }) => {
         // 使用 GenerateSW 模式，自動產生 service worker
         // injectManifest 模式需要你自己撰寫 sw.js，並在 build 時注入 precache 清單
         strategies: "generateSW",
-        // 如何更新?
+        // 如何更新? 但此處不會自動更新，需在 app 中呼叫 update() 來觸發更新流程
         // prompt：當有新版本可用時，Service Worker 會進入 waiting 狀態，並等待你手動呼叫 skipWaiting() 來啟用新版本。這種方式讓你可以控制何時更新，通常會在使用者同意後才進行更新。
         // autoUpdate：Service Worker 會自動在背景中檢查更新，並在有新版本時自動下載和安裝。
         // manual : 完全客製
-        registerType: "autoUpdate",
+        // registerType: "autoUpdate",
+
         // 你原本的 manifest 已經放在 public
         manifest: {
           name: "Japanese Word Practice",
