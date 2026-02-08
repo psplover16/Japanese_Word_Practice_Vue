@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
 import wordPracticeText from "@/constants/jpWords.js";
@@ -154,6 +154,8 @@ const onDeleteAllChange = (e) => {
   // 避免點擊刪除全部註記後，checkbox變成勾選狀態
   if (!e.target.checked) return;
   if (confirm("確定要刪除全部註記嗎？")) {
+    isDeleteAllNote.value = false;
+    if (!confirm("刪除後，無法復原，確定要刪除嗎？")) return;
     clearWordsStorage();
     wantNoteId.value = {};
   } else {
@@ -186,23 +188,31 @@ watch(
 
 onMounted(() => {
   setOldStorageData();
+  window.scrollTo(0, 0);
+
+  document.body.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
 });
 </script>
 
 <template>
   <div
-    class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
+    class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
   >
     <div class="flex justify-between items-center gap-5">
       <input
         type="text"
-        class="flex-1 w-0 h-8 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+        class="flex-1 w-0 h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
         placeholder="搜尋"
         v-model="searchText"
       />
       <div class="w-[90px]">
         <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
         <BaseCheckbox label="只顯示註記" v-model="isOnlyShowNotedWords" />
+        <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
       </div>
     </div>
     <div class="flex justify-between items-center">
@@ -223,17 +233,17 @@ onMounted(() => {
             <th class="thStyle">
               <BaseCheckbox label="單字" v-model="isShowWords" />
             </th>
-            <th class="thStyle">
+            <!-- <th class="thStyle">
               <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
-            </th>
+            </th> -->
             <th class="thStyle">
               <BaseCheckbox label="拼音" v-model="isShowRomanization" />
             </th>
             <th class="thStyle">
               <BaseCheckbox label="中文" v-model="isShowMeaning" />
             </th>
-            <th class="thStyle">
-              <div class="flex justify-center">
+            <th class="thStyle" width="22">
+              <div class="flex justify-center p-1">
                 <input
                   type="checkbox"
                   v-model="isDeleteAllNote"
@@ -263,10 +273,14 @@ onMounted(() => {
                   invisible: !isShowWords && !isLongPress[resultDataVal.id],
                 }"
               >
-                {{ resultDataVal.text }}
+                {{
+                  isShowPracticeWords
+                    ? swapKana(resultDataVal.text)
+                    : resultDataVal.text
+                }}
               </span>
             </td>
-            <td class="tdStyle no-select">
+            <!-- <td class="tdStyle no-select">
               <span
                 :class="{
                   invisible:
@@ -275,7 +289,7 @@ onMounted(() => {
               >
                 {{ swapKana(resultDataVal.text) }}
               </span>
-            </td>
+            </td> -->
             <td class="tdStyle no-select">
               <span
                 :class="{
@@ -295,8 +309,8 @@ onMounted(() => {
                 {{ resultDataVal.meaning }}
               </span>
             </td>
-            <td class="border border-gray-300 p-2 relative bg-white no-select">
-              <div class="flex justify-center">
+            <td class="tdStyle no-select">
+              <div class="flex justify-center p-1">
                 <input
                   type="checkbox"
                   v-model="wantNoteId[resultDataVal.id]"
@@ -327,16 +341,15 @@ onMounted(() => {
   font-size: 14px;
   line-height: 20px;
   padding: 2px;
-  > span {
-    text-wrap: wrap;
-  }
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 .tableMaxHeight {
-  // 標題32 + title上方margin24
-  // table父層容器 border1*2 +marginTop12 + padding16*2
-  // 搜尋列40  儲存32  gap-2*2
-
+  // 標題32 + title上方margin12
+  // table父層容器 border1px*2 +marginTop8 + padding12*2
+  // 搜尋列60  儲存32  gap-2*2
+  // 186px
   // 版本號高度40
-  max-height: calc(100dvh - 230px);
+  max-height: calc(100dvh - 196px);
 }
 </style>

@@ -1,2 +1,5 @@
 # Japanese_Word_Practice_Vue
 Japanese_Word_Practice_Vue
+
+# pwa
+# localStorage

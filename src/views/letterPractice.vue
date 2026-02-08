@@ -126,7 +126,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
+    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
   >
     <form
       class="flex flex-col gap-2 justify-center flex-wrap"
