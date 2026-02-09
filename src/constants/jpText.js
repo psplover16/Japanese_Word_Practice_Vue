@@ -1,6 +1,6 @@
 export const letters = [
   {
-    rowLabel: { jp: "あ段", romanization: "a" },
+    rowLabel: { jp: "あ行", romanization: "a" },
     cells: [
       { romanization: "a", hiragana: "あ", katakana: "ア" },
       { romanization: "i", hiragana: "い", katakana: "イ" },

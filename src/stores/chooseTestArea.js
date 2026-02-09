@@ -1,17 +1,20 @@
 import { defineStore } from "pinia";
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, watch } from "vue";
 import { letters, dakutenMap, sokuon, youon } from "@/constants/jpText.js";
 import { shuffled } from "@/helper/dealArray.js";
 
 export default defineStore("chooseTestArea", () => {
   // 每個格子的選取狀態，key 使用 `${rowIndex}-${colIndex}`
   const selectedLetters = reactive({});
-  const testNum = ref(5);
+  const testNum = ref(0);
   const includeHiragana = ref(true);
   const includeKatakana = ref(true);
   const includeDakuten = ref(false);
   const includeSokuon = ref(false);
   const includeYouon = ref(false);
+
+  const rowSelected = reactive({});
+  const colSelected = reactive({});
 
   const getChoosedLettersData = computed(() => {
     // 轉成陣列處理後再轉回成物件
@@ -26,7 +29,7 @@ export default defineStore("chooseTestArea", () => {
     return getAllTextData || [];
   });
 
-  // 情況下的資料：選取的基本字 + 濁音 + 促音
+  // 情況下的資料：選取的基本字 + 濁音 + 促音 (單字選取)
   const kanaWithDakutenAndSokuonData = computed(() => {
     let tmpData = getChoosedLettersData.value;
     if (includeDakuten.value) {
@@ -38,7 +41,7 @@ export default defineStore("chooseTestArea", () => {
     }
 
     if (includeYouon.value) {
-      const tmp = youon.map((item) => (item.data));
+      const tmp = youon.map((item) => item.data);
       tmpData = tmpData.concat(tmp.flat());
     }
     return tmpData;
@@ -48,14 +51,16 @@ export default defineStore("chooseTestArea", () => {
     let filtered = [];
     if (includeHiragana.value && includeKatakana.value) {
       getChoosedLettersData.value.forEach((item) => {
-        filtered.push({
-          romanization: item.romanization,
-          hiragana: item.hiragana,
-        });
-        filtered.push({
-          romanization: item.romanization,
-          katakana: item.katakana,
-        });
+        if (item) {
+          filtered.push({
+            romanization: item.romanization,
+            hiragana: item.hiragana,
+          });
+          filtered.push({
+            romanization: item.romanization,
+            katakana: item.katakana,
+          });
+        }
       });
     } else if (includeHiragana.value) {
       getChoosedLettersData.value.forEach((item) => {
@@ -97,7 +102,79 @@ export default defineStore("chooseTestArea", () => {
     includeYouon.value = false;
     testNum.value = 5;
     Object.keys(selectedLetters).forEach((k) => (selectedLetters[k] = false));
+    Object.keys(rowSelected).forEach((k) => (rowSelected[k] = false));
+    Object.keys(colSelected).forEach((k) => (colSelected[k] = false));
   };
+
+  watch(
+    [getChoosedLettersData, includeHiragana, includeKatakana],
+    ([getChoosedLettersDataVal, includeHiraganaVal, includeKatakanaVal]) => {
+      let textNumLength = getChoosedLettersDataVal.length || 0;
+      if (!includeHiraganaVal && !includeKatakanaVal) {
+        textNumLength = 0;
+      } else if (includeHiraganaVal && includeKatakanaVal) {
+        textNumLength *= 2;
+      }
+
+      testNum.value = textNumLength;
+    },
+  );
+
+  watch(rowSelected, (newVal) => {
+    const trueRow = Object.entries(newVal).filter(([, v]) => v === true);
+    const falseRow = Object.entries(newVal).filter(([, v]) => v === false);
+
+    function mapRow(rowData) {
+      return rowData.map((item) => item[0]);
+    }
+    console.log("rowSelected", newVal);
+    function checkLetterInRow(rowData, bool) {
+      letters[rowData].cells.forEach((cellVal, index) => {
+        const key = `${rowData}-${index}`;
+        if (cellVal) {
+          selectedLetters[key] = bool;
+        }
+      });
+    }
+
+    mapRow(trueRow).forEach((item) => {
+      checkLetterInRow(item, true);
+    });
+    mapRow(falseRow).forEach((item) => {
+      checkLetterInRow(item, false);
+    });
+  });
+
+  watch(
+    colSelected,
+    (newVal) => {
+      const trueCol = Object.entries(newVal).filter(([, v]) => v === true);
+      const falseCol = Object.entries(newVal).filter(([, v]) => v === false);
+      function mapCol(colData) {
+        return colData.map((item) => item[0]);
+      }
+
+      console.log("colSelected", newVal);
+
+      function checkLetterInCol(colSelectedStatus, bool) {
+        letters.forEach((rowVal, rowIndex) => {
+          //
+          if (!!rowVal.cells?.[colSelectedStatus]) {
+            const key = `${rowIndex}-${colSelectedStatus}`;
+            selectedLetters[key] = bool;
+          }
+        });
+      }
+
+      mapCol(trueCol).forEach((item) => {
+        checkLetterInCol(item, true);
+      });
+      mapCol(falseCol).forEach((item) => {
+        checkLetterInCol(item, false);
+      });
+    },
+    { deep: true },
+  );
 
   return {
     selectedLetters,
@@ -107,6 +184,8 @@ export default defineStore("chooseTestArea", () => {
     includeDakuten,
     includeSokuon,
     includeYouon,
+    rowSelected,
+    colSelected,
     shuffled,
     resetForm,
     getChoosedLettersData,

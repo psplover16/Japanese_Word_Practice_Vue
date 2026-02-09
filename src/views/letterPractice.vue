@@ -22,6 +22,8 @@ const {
   includeDakuten,
   includeSokuon,
   includeYouon,
+  rowSelected,
+  colSelected,
 } = storeToRefs(chooseTestAreaStore);
 
 // `allChoose` 作為 computed getter/setter，避免額外的 watch 迴圈
@@ -42,11 +44,20 @@ const allChoose = computed({
         row.cells.forEach((cell, c) => {
           if (cell?.hiragana && cell?.katakana)
             chooseTestAreaStore.selectedLetters[`${r}-${c}`] = true;
+          chooseTestAreaStore.colSelected[c] = true;
         });
+
+        chooseTestAreaStore.rowSelected[r] = true;
       });
     } else {
       Object.keys(chooseTestAreaStore.selectedLetters).forEach(
         (k) => (chooseTestAreaStore.selectedLetters[k] = false),
+      );
+      Object.keys(chooseTestAreaStore.rowSelected).forEach(
+        (k) => (chooseTestAreaStore.rowSelected[k] = false),
+      );
+      Object.keys(chooseTestAreaStore.colSelected).forEach(
+        (k) => (chooseTestAreaStore.colSelected[k] = false),
       );
     }
     includeHiragana.value = val;
@@ -185,7 +196,9 @@ onMounted(() => {
         >
           <thead>
             <tr>
-              <td colspan="6">清音：沒有濁點（゛）或半濁點（゜）的基本假名音</td>
+              <td colspan="6">
+                清音：沒有濁點（゛）或半濁點（゜）的基本假名音
+              </td>
             </tr>
           </thead>
           <tbody>
@@ -198,9 +211,12 @@ onMounted(() => {
               <th
                 v-for="(value, index) in letters[0].cells"
                 :key="index"
-                class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+                class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300 text-center"
               >
-                {{ value.hiragana }}段
+                <BaseCheckbox
+                  :label="`${value.hiragana}段`"
+                  v-model="colSelected[index]"
+                />
               </th>
             </tr>
             <tr v-for="(row, rowIndex) in letters" :key="rowIndex">
@@ -210,12 +226,16 @@ onMounted(() => {
                 <div
                   class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
                 >
-                  <div class="font-extrabold text-primary">
-                    {{ row?.rowLabel?.jp }}
-                  </div>
-                  <div class="font-bold text-muted">
-                    {{ row?.rowLabel?.romanization }}
-                  </div>
+                  <label class="font-bold text-muted">
+                    <div class="font-extrabold text-primary">
+                      {{ row?.rowLabel?.jp }}
+                    </div>
+                    <BaseCheckbox
+                      :label="row?.rowLabel?.romanization"
+                      v-model="rowSelected[rowIndex]"
+                    />
+                    <!-- 123 -->
+                  </label>
                 </div>
               </th>
               <td
