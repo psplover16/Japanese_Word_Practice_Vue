@@ -5,7 +5,7 @@ import { shuffled } from "@/helper/dealArray.js";
 
 export default defineStore("chooseTestArea", () => {
   // 每個格子的選取狀態，key 使用 `${rowIndex}-${colIndex}`
-  const selectedLetters = reactive({});
+  const selectedLetters = ref([]);
   const testNum = ref(0);
   const includeHiragana = ref(true);
   const includeKatakana = ref(true);
@@ -13,17 +13,14 @@ export default defineStore("chooseTestArea", () => {
   const includeSokuon = ref(false);
   const includeYouon = ref(false);
 
-  const rowSelected = reactive({});
-  const colSelected = reactive({});
+  const rowSelected = ref([]);
+  const colSelected = ref([]);
 
   const getChoosedLettersData = computed(() => {
     // 轉成陣列處理後再轉回成物件
-    const result = Object.fromEntries(
-      Object.entries(selectedLetters).filter(([, v]) => v === true),
-    );
-    const textIndex = Object.keys(result).map((k) => k.split("-"));
+    const textIndex = selectedLetters.value.map((k) => k.split("-"));
     const getAllTextData = textIndex.reduce((acc, cur) => {
-      acc.push(letters[cur[0]].cells[cur[1]]);
+      acc.push(letters[cur[0]]?.cells[cur[1]]);
       return acc;
     }, []);
     return getAllTextData || [];
@@ -101,9 +98,10 @@ export default defineStore("chooseTestArea", () => {
     includeSokuon.value = false;
     includeYouon.value = false;
     testNum.value = 5;
-    Object.keys(selectedLetters).forEach((k) => (selectedLetters[k] = false));
-    Object.keys(rowSelected).forEach((k) => (rowSelected[k] = false));
-    Object.keys(colSelected).forEach((k) => (colSelected[k] = false));
+    selectedLetters.value = [];
+
+    rowSelected.value = [];
+    colSelected.value = [];
   };
 
   watch(
@@ -120,60 +118,62 @@ export default defineStore("chooseTestArea", () => {
     },
   );
 
-  watch(rowSelected, (newVal) => {
-    const trueRow = Object.entries(newVal).filter(([, v]) => v === true);
-    const falseRow = Object.entries(newVal).filter(([, v]) => v === false);
-
-    function mapRow(rowData) {
-      return rowData.map((item) => item[0]);
+  function addUnique(arr, value) {
+    if (!arr.includes(value)) {
+      arr.push(value)
     }
-    console.log("rowSelected", newVal);
-    function checkLetterInRow(rowData, bool) {
-      letters[rowData].cells.forEach((cellVal, index) => {
-        const key = `${rowData}-${index}`;
-        if (cellVal) {
-          selectedLetters[key] = bool;
-        }
+  }
+
+  watch(
+    rowSelected,
+    (newVal = [], oldVal = []) => {
+      const added = newVal.filter(x => !oldVal.includes(x));
+      const removed = oldVal.filter(x => !newVal.includes(x));
+
+      // 新增列：把該列所有 cell 推進 selectedLetters（去重用 addUnique）
+      added.forEach((rowIndex) => {
+        letters[rowIndex].cells.forEach((cell, colIndex) => {
+          if (cell) addUnique(selectedLetters.value, `${rowIndex}-${colIndex}`);
+        });
       });
-    }
 
-    mapRow(trueRow).forEach((item) => {
-      checkLetterInRow(item, true);
-    });
-    mapRow(falseRow).forEach((item) => {
-      checkLetterInRow(item, false);
-    });
-  });
+      // 移除列：把 selectedLetters 中以該列為前綴的項目過濾掉
+      removed.forEach((rowIndex) => {
+        selectedLetters.value = selectedLetters.value.filter(
+          (s) => !s.startsWith(`${rowIndex}-`)
+        );
+      });
+    },
+    { deep: true }
+  );
+
+
+
 
   watch(
     colSelected,
-    (newVal) => {
-      const trueCol = Object.entries(newVal).filter(([, v]) => v === true);
-      const falseCol = Object.entries(newVal).filter(([, v]) => v === false);
-      function mapCol(colData) {
-        return colData.map((item) => item[0]);
-      }
+    (newVal = [], oldVal = []) => {
+      const added = newVal.filter(x => !oldVal.includes(x));
+      const removed = oldVal.filter(x => !newVal.includes(x));
 
-      console.log("colSelected", newVal);
-
-      function checkLetterInCol(colSelectedStatus, bool) {
-        letters.forEach((rowVal, rowIndex) => {
-          //
-          if (!!rowVal.cells?.[colSelectedStatus]) {
-            const key = `${rowIndex}-${colSelectedStatus}`;
-            selectedLetters[key] = bool;
+      // 新增列：把該列所有 cell 推進 selectedLetters（去重用 addUnique）
+      letters.forEach((rowData, rowIndex) => {
+        added.forEach((colIndex) => {
+          if (rowData.cells[colIndex]) {
+            addUnique(selectedLetters.value, `${rowIndex}-${colIndex}`);
           }
-        });
-      }
 
-      mapCol(trueCol).forEach((item) => {
-        checkLetterInCol(item, true);
-      });
-      mapCol(falseCol).forEach((item) => {
-        checkLetterInCol(item, false);
+        });
+      })
+
+      // 移除列：把 selectedLetters 中以該列為前綴的項目過濾掉
+      removed.forEach((rowIndex) => {
+        selectedLetters.value = selectedLetters.value.filter(
+          (s) => !s.endsWith(`-${rowIndex}`)
+        );
       });
     },
-    { deep: true },
+    { deep: true }
   );
 
   return {

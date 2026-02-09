@@ -50,8 +50,8 @@ onMounted(() => {
 
     // 新 Service Worker 已下載完成，但正在 waiting，還沒套用
     onNeedRefresh() {
-      const time = 1500;
-      setStatus("✅ 下載完成", time);
+      const time = 2000;
+      setStatus("✅資源下載完成", time);
       setTimeout(() => {
         updateSW(true);
       }, time);

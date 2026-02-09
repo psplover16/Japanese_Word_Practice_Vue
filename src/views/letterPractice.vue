@@ -40,25 +40,22 @@ const allChoose = computed({
   },
   set(val) {
     if (val) {
+      chooseTestAreaStore.selectedLetters = [];
       letters.forEach((row, r) => {
         row.cells.forEach((cell, c) => {
-          if (cell?.hiragana && cell?.katakana)
-            chooseTestAreaStore.selectedLetters[`${r}-${c}`] = true;
-          chooseTestAreaStore.colSelected[c] = true;
+          if (cell?.hiragana && cell?.katakana) {
+            chooseTestAreaStore.selectedLetters.push(`${r}-${c}`);
+          }
+          if (r === 0) {
+            chooseTestAreaStore.colSelected.push(c);
+          }
         });
-
-        chooseTestAreaStore.rowSelected[r] = true;
+        chooseTestAreaStore.rowSelected.push(r);
       });
     } else {
-      Object.keys(chooseTestAreaStore.selectedLetters).forEach(
-        (k) => (chooseTestAreaStore.selectedLetters[k] = false),
-      );
-      Object.keys(chooseTestAreaStore.rowSelected).forEach(
-        (k) => (chooseTestAreaStore.rowSelected[k] = false),
-      );
-      Object.keys(chooseTestAreaStore.colSelected).forEach(
-        (k) => (chooseTestAreaStore.colSelected[k] = false),
-      );
+      chooseTestAreaStore.selectedLetters = [];
+      chooseTestAreaStore.rowSelected = [];
+      chooseTestAreaStore.colSelected = [];
     }
     includeHiragana.value = val;
     includeKatakana.value = val;
@@ -69,8 +66,7 @@ const allChoose = computed({
 });
 
 const lettersSelectedCount = computed(() => {
-  return Object.values(chooseTestAreaStore.selectedLetters).filter((v) => v)
-    .length;
+  return chooseTestAreaStore.selectedLetters.length || 0;
 });
 
 const isFullSelection = computed(() => {
@@ -213,10 +209,12 @@ onMounted(() => {
                 :key="index"
                 class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300 text-center"
               >
-                <BaseCheckbox
-                  :label="`${value.hiragana}段`"
-                  v-model="colSelected[index]"
-                />
+                <label
+                  class="flex gap-1.5 items-center text-sm cursor-pointer text-nowrap"
+                >
+                  <input type="checkbox" v-model="colSelected" :value="index" />
+                  {{ value.hiragana }}段
+                </label>
               </th>
             </tr>
             <tr v-for="(row, rowIndex) in letters" :key="rowIndex">
@@ -230,11 +228,16 @@ onMounted(() => {
                     <div class="font-extrabold text-primary">
                       {{ row?.rowLabel?.jp }}
                     </div>
-                    <BaseCheckbox
-                      :label="row?.rowLabel?.romanization"
-                      v-model="rowSelected[rowIndex]"
-                    />
-                    <!-- 123 -->
+                    <label
+                      class="flex gap-1.5 items-center text-sm cursor-pointer text-nowrap"
+                    >
+                      <input
+                        type="checkbox"
+                        v-model="rowSelected"
+                        :value="rowIndex"
+                      />
+                      {{ row?.rowLabel?.romanization }}
+                    </label>
                   </label>
                 </div>
               </th>
@@ -249,11 +252,8 @@ onMounted(() => {
                 >
                   <input
                     type="checkbox"
-                    v-model="
-                      chooseTestAreaStore.selectedLetters[
-                        `${rowIndex}-${colIndex}`
-                      ]
-                    "
+                    v-model="chooseTestAreaStore.selectedLetters"
+                    :value="`${rowIndex}-${colIndex}`"
                   />
                   <div class="flex flex-col justify-center items-center">
                     <div class="font-bold text-nowrap sm:text-xl text-lg">
