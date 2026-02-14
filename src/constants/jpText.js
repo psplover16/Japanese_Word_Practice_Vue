@@ -96,7 +96,7 @@ export const letters = [
       { romanization: "wi", hiragana: "ゐ", katakana: "ヰ" },
       null,
       { romanization: "we", hiragana: "ゑ", katakana: "ヱ" },
-      { romanization: "wo", hiragana: "を", katakana: "ヲ" },
+      { romanization: "wo(念o)", hiragana: "を", katakana: "ヲ" },
     ],
   },
   {
@@ -109,6 +109,19 @@ export const letters = [
       null,
     ],
   },
+];
+
+export const oldLetters = [
+  { romanization: "wi", hiragana: "ゐ", katakana: "ヰ", reason: "現代日語已不使用，主要出現在歷史拼寫" },
+  { romanization: "we", hiragana: "ゑ", katakana: "ヱ", reason: "現代日語已不使用，主要出現在歷史拼寫" },
+];
+
+export const specialLetters = [
+  { romanization: "ha", hiragana: "は", katakana: "", reason: "本來念「ha」，但當助詞時念「wa」" },
+  { romanization: "he", hiragana: "へ", katakana: "", reason: "本來念「he」，但當助詞時念「え (e)」" },
+  { romanization: "wo", hiragana: "を", katakana: "ヲ", reason: "現代日語中主要作為助詞使用，發音通常為「o」" },
+  { romanization: "ji", hiragana: "ぢ", katakana: "ヂ", reason: "多數情況與 じ 同音，現代日語少用，主要出現在連濁或歷史拼寫" },
+  { romanization: "zu", hiragana: "づ", katakana: "ヅ", reason: "多數情況與 ず 同音，現代日語少用，主要出現在連濁或固定詞彙" },
 ];
 
 export const dakutenMap = [

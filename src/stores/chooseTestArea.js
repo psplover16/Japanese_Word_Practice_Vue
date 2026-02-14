@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { ref, reactive, computed, watch } from "vue";
-import { letters, dakutenMap, sokuon, youon } from "@/constants/jpText.js";
+import { ref, computed, watch } from "vue";
+import { letters, dakutenMap, sokuon, youon, oldLetters } from "@/constants/jpText.js";
 import { shuffled } from "@/helper/dealArray.js";
 
 export default defineStore("chooseTestArea", () => {
@@ -12,6 +12,7 @@ export default defineStore("chooseTestArea", () => {
   const includeDakuten = ref(false);
   const includeSokuon = ref(false);
   const includeYouon = ref(false);
+  const includeOldLetters = ref(false);
 
   const rowSelected = ref([]);
   const colSelected = ref([]);
@@ -184,6 +185,7 @@ export default defineStore("chooseTestArea", () => {
     includeDakuten,
     includeSokuon,
     includeYouon,
+    includeOldLetters,
     rowSelected,
     colSelected,
     shuffled,

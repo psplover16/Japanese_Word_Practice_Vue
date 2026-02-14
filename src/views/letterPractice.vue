@@ -3,7 +3,14 @@ import { ref, computed, onMounted, watch, nextTick } from "vue";
 
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import { letters, dakutenMap, youon, sokuon } from "@/constants/jpText.js";
+import {
+  letters,
+  dakutenMap,
+  youon,
+  sokuon,
+  oldLetters,
+  specialLetters,
+} from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
 import useLettersMemoryStore from "@/stores/lettersMemory.js";
@@ -22,6 +29,7 @@ const {
   includeDakuten,
   includeSokuon,
   includeYouon,
+  includeOldLetters,
   rowSelected,
   colSelected,
 } = storeToRefs(chooseTestAreaStore);
@@ -80,6 +88,10 @@ const isFullSelection = computed(() => {
   return lettersSelectedCount.value === totalLetters;
 });
 
+const specialWords = computed(() => {
+  return [...specialLetters, ...oldLetters];
+});
+
 const noticeCardVisible = ref(false);
 
 const instinateTest = () => {
@@ -107,6 +119,17 @@ const combineBasicSoundCombinations = (data) => {
     });
   });
   return result;
+};
+
+const excludeOldLetters = (cellData) => {
+  if (includeOldLetters.value) return cellData;
+  return cellData.map((cell) => {
+    if (!cell) return null;
+    const isOldLetters = oldLetters.some(
+      (old) => old.hiragana === cell.hiragana || old.katakana === cell.katakana,
+    );
+    return isOldLetters ? null : cell;
+  });
 };
 
 watch(
@@ -164,6 +187,9 @@ onMounted(() => {
           <BaseCheckbox label="濁音/半濁音" v-model="includeDakuten" />
           <BaseCheckbox label="促音" v-model="includeSokuon" />
           <BaseCheckbox label="拗音/合拗音/長音符" v-model="includeYouon" />
+        </div>
+        <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
+          <BaseCheckbox label="古語假名" v-model="includeOldLetters" />
         </div>
         <div class="flex gap-1 items-center justify-between w-full">
           <div class="flex gap-1">
@@ -242,7 +268,7 @@ onMounted(() => {
                 </div>
               </th>
               <td
-                v-for="(detailData, colIndex) in row.cells"
+                v-for="(detailData, colIndex) in excludeOldLetters(row.cells)"
                 :key="colIndex"
                 class="border border-gray-300 p-0.5 relative bg-white no-select"
               >
@@ -423,6 +449,46 @@ onMounted(() => {
                 {{ sokuon?.romanization }}
               </div>
             </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full border-separate border-spacing-0 mt-3">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            colspan="4"
+          >
+            特殊音節
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in specialWords" :key="index">
+          <th
+            class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+          >
+            <div
+              class="flex flex-col items-center justify-center gap-0.5 text-sm"
+            >
+              <div
+                class="flex flex-col justify-center items-center font-extrabold text-primary"
+              >
+                <div class="font-bold text-nowrap sm:text-xl text-lg">
+                  {{
+                    `${item?.hiragana} ${item?.katakana && "/"} ${item?.katakana}`
+                  }}
+                </div>
+                <div class="font-semibold text-xs text-muted">
+                  {{ item?.romanization }}
+                </div>
+              </div>
+            </div>
+          </th>
+          <td class="border border-gray-300 p-1 relative bg-white no-select">
+            {{ item?.reason }}
           </td>
         </tr>
       </tbody>
