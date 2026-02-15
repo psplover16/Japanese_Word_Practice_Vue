@@ -40,7 +40,6 @@ const allChoose = computed({
     return (
       includeHiragana.value &&
       includeKatakana.value &&
-      isFullSelection.value &&
       includeDakuten.value &&
       includeSokuon.value &&
       includeYouon.value
@@ -64,6 +63,7 @@ const allChoose = computed({
       chooseTestAreaStore.selectedLetters = [];
       chooseTestAreaStore.rowSelected = [];
       chooseTestAreaStore.colSelected = [];
+      includeOldLetters.value = false;
     }
     includeHiragana.value = val;
     includeKatakana.value = val;
@@ -74,7 +74,7 @@ const allChoose = computed({
 });
 
 const lettersSelectedCount = computed(() => {
-  return chooseTestAreaStore.selectedLetters.length || 0;
+  return chooseTestAreaStore.getChoosedLettersData?.length || 0;
 });
 
 const isFullSelection = computed(() => {

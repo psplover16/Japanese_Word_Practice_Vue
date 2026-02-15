@@ -17,13 +17,30 @@ export default defineStore("chooseTestArea", () => {
   const rowSelected = ref([]);
   const colSelected = ref([]);
 
+  const filiterOldLetters = (data) => {
+    if (data.length === 0) return [];
+    return data.filter((item) => {
+      return !oldLetters.some((old) => {
+        return (
+          (item.hiragana && item.hiragana === old.hiragana) ||
+          (item.katakana && item.katakana === old.katakana)
+        );
+      });
+    });
+  };
+
   const getChoosedLettersData = computed(() => {
     // 轉成陣列處理後再轉回成物件
     const textIndex = selectedLetters.value.map((k) => k.split("-"));
-    const getAllTextData = textIndex.reduce((acc, cur) => {
+    let getAllTextData = textIndex.reduce((acc, cur) => {
       acc.push(letters[cur[0]]?.cells[cur[1]]);
       return acc;
     }, []);
+    // 剔除古字
+    if (!includeOldLetters.value) {
+      getAllTextData = filiterOldLetters(getAllTextData);
+    }
+
     return getAllTextData || [];
   });
 
@@ -98,7 +115,6 @@ export default defineStore("chooseTestArea", () => {
     includeDakuten.value = false;
     includeSokuon.value = false;
     includeYouon.value = false;
-    testNum.value = 5;
     selectedLetters.value = [];
 
     rowSelected.value = [];
@@ -114,7 +130,6 @@ export default defineStore("chooseTestArea", () => {
       } else if (includeHiraganaVal && includeKatakanaVal) {
         textNumLength *= 2;
       }
-
       testNum.value = textNumLength;
     },
   );
