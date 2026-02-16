@@ -219,3 +219,80 @@ export const youon = [
     ],
   },
 ];
+
+export const similarLetters = [
+  [
+    { romanization: 'a', hiragana: 'あ' },
+    { romanization: 'nu', hiragana: 'ぬ' },
+    { romanization: 'ne', hiragana: 'ね' },
+    { romanization: 'me', hiragana: 'め' },
+    { romanization: 're', hiragana: 'れ' },
+    { romanization: 'wa', hiragana: 'わ' },
+    { romanization: 'yu', hiragana: 'ゆ' },
+  ],
+  [
+    { romanization: 'i', hiragana: 'い' },
+    { romanization: 'ke', hiragana: 'け' },
+    { romanization: 'ha', hiragana: 'は' },
+    { romanization: 'na', hiragana: 'な' },
+    { romanization: 'ho', hiragana: 'ほ' },
+    { romanization: 'ta', hiragana: 'た' },
+    { romanization: 'wo', hiragana: 'を' },
+  ],
+  [
+    { romanization: 'u', hiragana: 'う' },
+    { romanization: 'ra', katakana: 'ラ' },
+    { romanization: 'fu', katakana: 'フ' },
+    { romanization: 'tsu', hiragana: 'つ' },
+    { romanization: 'to', hiragana: 'と' },
+  ],
+  [
+    { romanization: 'u', katakana: 'ウ' },
+    { romanization: 'wa', katakana: 'ワ' },
+    { romanization: 'wo', katakana: 'ヲ' },
+    { romanization: 'ku', katakana: 'ク' },
+    { romanization: 'ke', katakana: 'ケ' },
+  ],
+  [
+    { romanization: 'ki', hiragana: 'き' },
+    { romanization: 'sa', hiragana: 'さ' },
+    { romanization: 'ma', hiragana: 'ま' },
+    { romanization: 'chi', hiragana: 'ち' },
+    { romanization: 'ra', hiragana: 'ら' },
+  ],
+  [
+    { romanization: 'ko', katakana: 'コ' },
+    { romanization: 'yo', katakana: 'ヨ' },
+  ],
+  [
+    { romanization: 'so', hiragana: 'そ' },
+    { romanization: 'ru', hiragana: 'る' },
+    { romanization: 'ro', hiragana: 'ろ' },
+  ],
+  [
+
+    { romanization: 'shi', katakana: 'シ' },
+    { romanization: 'tsu', katakana: 'ツ' },
+    { romanization: 'mi', katakana: 'ミ' },
+  ],
+  [
+    { romanization: 'so', katakana: 'ソ' },
+    { romanization: 'n', katakana: 'ン' },
+  ],
+  [
+    { romanization: 'ta', katakana: 'タ' },
+    { romanization: 'nu', katakana: 'ヌ' },
+  ],
+  [
+    { romanization: 'sa', katakana: 'サ' },
+    { romanization: 'se', hiragana: 'せ' },
+    { romanization: 'se', katakana: 'セ' },
+  ],
+  [
+    { romanization: 'chi', katakana: 'チ' },
+    { romanization: 'te', katakana: 'テ' },
+    { romanization: 'na', katakana: 'ナ' },
+    { romanization: 'mo', hiragana: 'も' },
+    { romanization: 'mo', katakana: 'モ' },
+  ],
+];

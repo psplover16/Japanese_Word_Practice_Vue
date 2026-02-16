@@ -10,6 +10,7 @@ import {
   sokuon,
   oldLetters,
   specialLetters,
+  similarLetters,
 } from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
@@ -30,72 +31,44 @@ const {
   includeSokuon,
   includeYouon,
   includeOldLetters,
+  isOnlySimilarLetters,
   rowSelected,
   colSelected,
+  allChoose,
 } = storeToRefs(chooseTestAreaStore);
-
-// `allChoose` 作為 computed getter/setter，避免額外的 watch 迴圈
-const allChoose = computed({
-  get() {
-    return (
-      includeHiragana.value &&
-      includeKatakana.value &&
-      includeDakuten.value &&
-      includeSokuon.value &&
-      includeYouon.value
-    );
-  },
-  set(val) {
-    if (val) {
-      chooseTestAreaStore.selectedLetters = [];
-      letters.forEach((row, r) => {
-        row.cells.forEach((cell, c) => {
-          if (cell?.hiragana && cell?.katakana) {
-            chooseTestAreaStore.selectedLetters.push(`${r}-${c}`);
-          }
-          if (r === 0) {
-            chooseTestAreaStore.colSelected.push(c);
-          }
-        });
-        chooseTestAreaStore.rowSelected.push(r);
-      });
-    } else {
-      chooseTestAreaStore.selectedLetters = [];
-      chooseTestAreaStore.rowSelected = [];
-      chooseTestAreaStore.colSelected = [];
-      includeOldLetters.value = false;
-    }
-    includeHiragana.value = val;
-    includeKatakana.value = val;
-    includeDakuten.value = val;
-    includeSokuon.value = val;
-    includeYouon.value = val;
-  },
-});
 
 const lettersSelectedCount = computed(() => {
   return chooseTestAreaStore.getChoosedLettersData?.length || 0;
-});
-
-const isFullSelection = computed(() => {
-  const totalLetters = letters.reduce((total, row) => {
-    return (
-      total +
-      row.cells.filter((cell) => cell?.hiragana && cell?.katakana).length
-    );
-  }, 0);
-  //
-  return lettersSelectedCount.value === totalLetters;
 });
 
 const specialWords = computed(() => {
   return [...specialLetters, ...oldLetters];
 });
 
+const similarLettersMaxLength = computed(() => {
+  return Math.max(...similarLetters.map((group) => group.length));
+});
+
+const trAddEmprtyTd = (trData) => {
+  // console.log(trData);
+  console.log(similarLettersMaxLength.value);
+  if (trData.length === similarLettersMaxLength.value) return trData;
+  const emptyTdCount = similarLettersMaxLength.value - trData.length;
+  for (let i = 0; i < emptyTdCount; i++) {
+    trData.push(null);
+  }
+  console.log(trData);
+  return trData;
+};
+
 const noticeCardVisible = ref(false);
 
 const instinateTest = () => {
-  if (!includeHiragana.value && !includeKatakana.value) {
+  if (
+    !includeHiragana.value &&
+    !includeKatakana.value &&
+    !isOnlySimilarLetters.value
+  ) {
     alert("請至少選擇平假名或片假名其中一項才能開始出題！");
     return;
   }
@@ -103,7 +76,7 @@ const instinateTest = () => {
     alert("題數必須大於 0 才能開始出題！");
     return;
   }
-  if (lettersSelectedCount.value === 0) {
+  if (lettersSelectedCount.value === 0 && !isOnlySimilarLetters.value) {
     alert("請至少選擇一個音節才能開始出題！");
     return;
   }
@@ -190,6 +163,7 @@ onMounted(() => {
         </div>
         <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
           <BaseCheckbox label="古語假名" v-model="includeOldLetters" />
+          <BaseCheckbox label="相近音節" v-model="isOnlySimilarLetters" />
         </div>
         <div class="flex gap-1 items-center justify-between w-full">
           <div class="flex gap-1">
@@ -489,6 +463,37 @@ onMounted(() => {
           </th>
           <td class="border border-gray-300 p-1 relative bg-white no-select">
             {{ item?.reason }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full border-separate border-spacing-0 mt-3" v-if="true">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            :colspan="similarLettersMaxLength"
+          >
+            相似字元
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in similarLetters" :key="index">
+          <td
+            class="border border-gray-300 p-1 relative bg-white no-select"
+            v-for="(subItem, subIndex) in trAddEmprtyTd(item)"
+            :key="subIndex"
+          >
+            <div class="flex flex-col justify-center items-center">
+              <div class="font-bold text-nowrap sm:text-xl text-lg">
+                {{ subItem?.hiragana || subItem?.katakana }}
+              </div>
+              <div class="font-semibold text-xs text-muted">
+                {{ subItem?.romanization }}
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>
