@@ -1,16 +1,18 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from "vue";
-
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
+import BaseTable from "@/components/BaseTable.vue";
+import YoanTable from "@/components/YoanTable.vue";
+import LongToneTable from "@/components/LongToneTable.vue";
 import {
   letters,
   dakutenMap,
-  youon,
   sokuon,
   oldLetters,
   specialLetters,
   similarLetters,
+  phonics,
 } from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
@@ -79,17 +81,6 @@ const instinateTest = () => {
     return;
   }
   noticeCardVisible.value = true;
-};
-
-const combineBasicSoundCombinations = (data) => {
-  const result = [];
-  data.hiragana.forEach((item, index) => {
-    result.push({
-      words: `${item}/${data.katakana[index]}`,
-      romanization: data.romanization[index],
-    });
-  });
-  return result;
 };
 
 const excludeOldLetters = (cellData) => {
@@ -277,7 +268,7 @@ onMounted(() => {
             class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
             colspan="5"
           >
-            濁音 / 半濁音
+            濁音 / 半濁音(p)
           </th>
         </tr>
       </thead>
@@ -299,132 +290,10 @@ onMounted(() => {
       </tr>
     </table>
 
-    <table class="w-full border-separate border-spacing-0 mt-3">
-      <thead>
-        <tr>
-          <td colspan="4">進階</td>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(row, rowIndex) in youon" :key="rowIndex">
-          <tr>
-            <td
-              class="bg-neutral-100 font-bold text-base p-1 border border-gray-30 whitespace-pre-wrap"
-              colspan="4"
-            >
-              {{ row?.base }}：{{ row?.note }}
-            </td>
-          </tr>
-          <tr>
-            <td
-              class="w-[60px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
-              <div
-                class="flex flex-col items-center justify-center gap-0.5 text-sm"
-              >
-                <div class="font-extrabold text-primary">基本音</div>
-              </div>
-            </td>
-            <td class="border border-gray-300 bg-neutral-100" colspan="3">
-              <div class="flex justify-around">
-                <div
-                  class="bg-neutral-100 font-bold p-0.5 flex items-center flex-col justify-center text-xs sm:text-base md:text-lg px-1"
-                  v-for="value in combineBasicSoundCombinations(
-                    row.basicSoundCombinations,
-                  )"
-                  :key="value.romanization"
-                >
-                  <div>{{ value.words }}</div>
-                  <div>{{ value.romanization }}</div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td
-              class="border border-gray-300 p-0.5 relative bg-white no-select"
-            ></td>
-            <td
-              v-for="(detailData, colIndex) in row.data"
-              :key="colIndex"
-              class="border border-gray-300 p-0.5 relative bg-white no-select"
-              :colspan="4 - row.data.length"
-            >
-              <div class="flex flex-col justify-center items-center">
-                <div class="font-bold text-nowrap sm:text-xl text-lg">
-                  {{
-                    `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
-                  }}
-                </div>
-                <div class="font-semibold text-xs text-muted">
-                  {{ detailData?.romanization }}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </template>
-
-        <tr v-for="(row, rowIndex) in youon" :key="rowIndex" v-show="false">
-          <td
-            v-for="(detailData, colIndex) in row.data"
-            :key="colIndex"
-            class="border border-gray-300 p-0.5 relative bg-white no-select"
-            :colspan="4 - row.data.length"
-          >
-            <div class="flex flex-col justify-center items-center">
-              <div class="font-bold text-nowrap sm:text-xl text-lg">
-                {{
-                  `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
-                }}
-              </div>
-              <div class="font-semibold text-xs text-muted">
-                {{ detailData?.romanization }}
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <table class="w-full border-separate border-spacing-0 mt-3">
-      <thead>
-        <tr>
-          <th
-            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
-            colspan="4"
-          >
-            {{ sokuon.romanization }}: {{ sokuon.rule }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th
-            class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-          >
-            <div
-              class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
-            >
-              <div class="font-extrabold text-primary">
-                {{ sokuon?.romanization }}
-              </div>
-            </div>
-          </th>
-          <td class="border border-gray-300 p-0.5 relative bg-white no-select">
-            <div class="flex flex-col justify-center items-center">
-              <div class="font-bold text-nowrap sm:text-xl text-lg">
-                {{
-                  `${sokuon?.hiragana} ${sokuon?.katakana && "/"} ${sokuon?.katakana}`
-                }}
-              </div>
-              <div class="font-semibold text-xs text-muted">
-                {{ sokuon?.romanization }}
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <BaseTable :tableData="phonics" alt="撥音" />
+    <BaseTable :tableData="sokuon" alt="促音" />
+    <YoanTable alt="拗音" />
+    <LongToneTable alt="長音規則" />
 
     <table class="w-full border-separate border-spacing-0 mt-3">
       <thead>

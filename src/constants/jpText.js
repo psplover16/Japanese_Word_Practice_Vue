@@ -166,11 +166,109 @@ export const dakutenMap = [
 ];
 
 export const sokuon = {
+  base: "促音",
   hiragana: "っ",
   katakana: "ッ",
-  romanization: "促音",
-  rule: "後接 k/s/t/p 行，發音停頓/加強",
+  romanization: "",
+  rule: "寫法上，比正常假名小。\n第一個字讀快一拍，第二個字讀正常拍",
+  example: [
+    {
+      word: "がっこう (gakkou)",
+      meaning: "學校",
+    },
+    {
+      word: "きって (kitte)",
+      meaning: "郵票",
+
+    }
+  ]
 };
+
+export const phonics = {
+  base: "撥音",
+  hiragana: "ん",
+  katakana: "ン",
+  romanization: "n",
+  rule: "發音時嘴巴閉上，聲帶震動，聲音從鼻子出來\n在某些情況下會變成 m、n、ng 的發音",
+  example: [
+    {
+      word: "さんぽ (sanpo)",
+      meaning: "散步",
+    },
+    {
+      word: "せんせい (sensei)",
+      meaning: "老師",
+    }
+  ]
+};
+
+export const longToneRule = [
+  {
+    condition: "兩個相同母音連在一起",
+    example: [
+      {
+        word: "おかあさん (okaasan)",
+        meaning: "媽媽",
+      },
+      {
+        word: "きいろ (kiiro)",
+        meaning: "黃色",
+      }
+    ]
+  },
+  {
+    condition: "假名後面接同段母音",
+    example: [
+      {
+        word: "かお (kao)",
+        meaning: "臉",
+      },
+      {
+        word: "きょう (kyou)",
+        meaning: "今天",
+      }
+    ]
+  },
+  {
+    condition: "お段的假名後面接「う」",
+    example: [
+      {
+        word: "おとうさん (otousan)",
+        meaning: "爸爸",
+      },
+      {
+        word: "こうこう (koukou)",
+        meaning: "高中",
+      }
+    ]
+  },
+  {
+    condition: "え段的假名後面接「い」",
+    example: [
+      {
+        word: "えいが (eiga)",
+        meaning: "電影",
+      },
+      {
+        word: "けいさつ (keisatsu)",
+        meaning: "警察",
+      }
+    ]
+  },
+  {
+    condition: "外來語通常用長音符「ー」來表示長音",
+    example: [
+      {
+        word: "コーヒー (koohii)",
+        meaning: "咖啡",
+      },
+      {
+        word: "スーパー (suupaa)",
+        meaning: "超市",
+      }
+    ]
+  }
+]
 
 export const youon = [
   {
