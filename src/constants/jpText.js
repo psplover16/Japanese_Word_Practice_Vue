@@ -96,7 +96,7 @@ export const letters = [
       { romanization: "wi", hiragana: "ゐ", katakana: "ヰ" },
       null,
       { romanization: "we", hiragana: "ゑ", katakana: "ヱ" },
-      { romanization: "wo(念o)", hiragana: "を", katakana: "ヲ" },
+      { romanization: "wo", hiragana: "を", katakana: "ヲ" },
     ],
   },
   {

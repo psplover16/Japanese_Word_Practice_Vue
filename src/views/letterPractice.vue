@@ -49,15 +49,13 @@ const similarLettersMaxLength = computed(() => {
   return Math.max(...similarLetters.map((group) => group.length));
 });
 
-const trAddEmprtyTd = (trData) => {
-  // console.log(trData);
-  console.log(similarLettersMaxLength.value);
+const trAddEmprtyTd = (originalData) => {
+  const trData = structuredClone(originalData);
   if (trData.length === similarLettersMaxLength.value) return trData;
   const emptyTdCount = similarLettersMaxLength.value - trData.length;
   for (let i = 0; i < emptyTdCount; i++) {
     trData.push(null);
   }
-  console.log(trData);
   return trData;
 };
 

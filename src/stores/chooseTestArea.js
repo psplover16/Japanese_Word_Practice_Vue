@@ -96,7 +96,7 @@ export default defineStore("chooseTestArea", () => {
     if (filtered.length === 0 && !isOnlySimilarLetters.value) return [];
     // 只有相近字元的情況
     if (isOnlySimilarLetters.value) {
-      filtered = similarLetters.flat();
+      filtered = structuredClone(similarLetters).flat();
     }
     // base = 原始候選，不再被 mutate
     const base = filtered.slice();
