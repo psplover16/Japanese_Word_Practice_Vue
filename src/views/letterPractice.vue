@@ -268,7 +268,7 @@ onMounted(() => {
             class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
             colspan="5"
           >
-            濁音 / 半濁音(p)
+            濁音(g/z/d/b) / 半濁音(p)
           </th>
         </tr>
       </thead>
