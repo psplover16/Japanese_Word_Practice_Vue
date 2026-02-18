@@ -2,6 +2,15 @@
 import { computed } from "vue";
 import { youon } from "@/constants/jpText.js";
 
+const DATA_COLS_TOTAL = 6;
+
+const getDistributedColspan = (itemCount, itemIndex) => {
+  if (!itemCount || itemCount <= 0) return 1;
+  const base = Math.floor(DATA_COLS_TOTAL / itemCount);
+  const remainder = DATA_COLS_TOTAL % itemCount;
+  return Math.max(1, base + (itemIndex < remainder ? 1 : 0));
+};
+
 const combineBasicSoundCombinations = (data) => {
   const result = [];
   data.hiragana.forEach((item, index) => {
@@ -22,7 +31,7 @@ const youonTable = computed(() => {
   <table class="w-full border-separate border-spacing-0 mt-3">
     <thead>
       <tr>
-        <td colspan="4"></td>
+        <td colspan="7"></td>
       </tr>
     </thead>
     <tbody>
@@ -30,7 +39,7 @@ const youonTable = computed(() => {
         <tr>
           <td
             class="bg-neutral-100 font-bold text-base p-1 border border-gray-30 whitespace-pre-wrap"
-            colspan="4"
+            colspan="7"
           >
             {{ row?.base }}：{{ row?.note }}
           </td>
@@ -42,10 +51,10 @@ const youonTable = computed(() => {
             <div
               class="flex flex-col items-center justify-center gap-0.5 text-sm"
             >
-              <div class="font-extrabold text-primary">基本音</div>
+              <div class="font-extrabold text-primary text-nowrap">基本音</div>
             </div>
           </td>
-          <td class="border border-gray-300 bg-neutral-100" colspan="3">
+          <td class="border border-gray-300 bg-neutral-100" :colspan="DATA_COLS_TOTAL">
             <div class="flex justify-around">
               <div
                 class="bg-neutral-100 font-bold p-0.5 flex items-center flex-col justify-center text-xs sm:text-base md:text-lg px-1"
@@ -68,7 +77,7 @@ const youonTable = computed(() => {
             v-for="(detailData, colIndex) in row.data"
             :key="colIndex"
             class="border border-gray-300 p-0.5 relative bg-white no-select"
-            :colspan="4 - row.data.length"
+            :colspan="getDistributedColspan(row.data.length, colIndex)"
           >
             <div class="flex flex-col justify-center items-center">
               <div class="font-bold text-nowrap sm:text-xl text-lg">

@@ -2,7 +2,6 @@
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import wordPracticeText from "@/constants/jpWords.js";
 
 import useWordsMemoryStore from "@/stores/wordsMemory.js";
 import useChooseTestAreaStore from "@/stores/chooseTestArea.js";
@@ -17,16 +16,17 @@ const wordsMemory = useWordsMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
 const { setOldStorageData, setWordsStorage, clearWordsStorage } = wordsMemory;
 const { kanaWithDakutenAndSokuonData } = storeToRefs(chooseTestAreaStore);
-const { getNoticeWords } = storeToRefs(wordsMemory);
+const { getNoticeWords, addIdwordPracticeText } = storeToRefs(wordsMemory);
 
 const isLongPress = ref({});
 
 const isShowWords = ref(true);
 const isShowPracticeWords = ref(false);
 const isShowRomanization = ref(false);
+const isShowHanji = ref(true);
 const isShowMeaning = ref(false);
 const wantNoteId = ref({});
-const isShowAllWords = ref(false);
+const isShowAllWords = ref(true);
 const isOnlyShowNotedWords = ref(false);
 const isDeleteAllNote = ref(false);
 const searchText = ref("");
@@ -94,16 +94,6 @@ function filterWordPracticeText(
   );
 }
 
-// 替wordPracticeText 加上 id 欄位，localStorage用
-// note欄位 若localStorage有id，則特別註記true
-const addIdwordPracticeText = computed(() => {
-  return wordPracticeText.map((item, index) => ({
-    id: index,
-    note: getNoticeWords.value.includes(index),
-    ...item,
-  }));
-});
-
 const filterSearchText = (text, searchText) => {
   const searchLower = searchText.toLowerCase();
   return text.toLowerCase().includes(searchLower);
@@ -127,11 +117,13 @@ const resultData = computed(() => {
   // 搜尋功能，過濾掉不包含搜尋字串的單字
   if (searchText.value.trim() !== "") {
     // 轉成英文小寫，讓大小寫不分
+    console.log(sendData);
     sendData = sendData.filter(
       (item) =>
         filterSearchText(item.text, searchText.value) ||
         filterSearchText(item.romanization, searchText.value) ||
-        filterSearchText(item.meaning, searchText.value),
+        filterSearchText(item.meaning, searchText.value) ||
+        filterSearchText(item.kanji, searchText.value),
     );
   }
   return sendData;
@@ -203,16 +195,23 @@ onUnmounted(() => {
     class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
   >
     <div class="flex justify-between items-center gap-5">
-      <input
-        type="text"
-        class="flex-1 w-0 h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
-        placeholder="搜尋"
-        v-model="searchText"
-      />
+      <div class="flex flex-col flex-1">
+        <input
+          type="text"
+          class="w-full h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+          placeholder="搜尋"
+          v-model="searchText"
+        />
+        <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
+      </div>
       <div class="w-[90px]">
         <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
-        <BaseCheckbox label="只顯示註記" v-model="isOnlyShowNotedWords" />
-        <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
+        <BaseCheckbox label="漢字" v-model="isShowHanji" />
+        <BaseCheckbox
+          label="只顯示註記"
+          v-model="isOnlyShowNotedWords"
+          class="ml-0.5"
+        />
       </div>
     </div>
     <div class="flex justify-between items-center">
@@ -233,11 +232,11 @@ onUnmounted(() => {
             <th class="thStyle">
               <BaseCheckbox label="單字" v-model="isShowWords" />
             </th>
-            <!-- <th class="thStyle">
-              <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
-            </th> -->
-            <th class="thStyle">
-              <BaseCheckbox label="拼音" v-model="isShowRomanization" />
+            <th class="thStyle flex gap-2">
+              <BaseCheckbox
+                :label="isShowHanji ? '漢字' : '拼音'"
+                v-model="isShowRomanization"
+              />
             </th>
             <th class="thStyle">
               <BaseCheckbox label="中文" v-model="isShowMeaning" />
@@ -267,7 +266,7 @@ onUnmounted(() => {
             }"
             @click="onRowClick(resultDataVal.id)"
           >
-            <td class="tdStyle no-select">
+            <td class="tdStyle no-select" width="30%">
               <span
                 :class="{
                   invisible: !isShowWords && !isLongPress[resultDataVal.id],
@@ -280,24 +279,16 @@ onUnmounted(() => {
                 }}
               </span>
             </td>
-            <!-- <td class="tdStyle no-select">
-              <span
-                :class="{
-                  invisible:
-                    !isShowPracticeWords && !isLongPress[resultDataVal.id],
-                }"
-              >
-                {{ swapKana(resultDataVal.text) }}
-              </span>
-            </td> -->
-            <td class="tdStyle no-select">
+            <td class="tdStyle no-select" width="20%">
               <span
                 :class="{
                   invisible:
                     !isShowRomanization && !isLongPress[resultDataVal.id],
                 }"
               >
-                {{ resultDataVal.romanization }}
+                {{
+                  isShowHanji ? resultDataVal.kanji : resultDataVal.romanization
+                }}
               </span>
             </td>
             <td class="tdStyle no-select">

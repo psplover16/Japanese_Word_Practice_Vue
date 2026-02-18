@@ -299,6 +299,22 @@ export const youon = [
       { hiragana: "ょ", katakana: "ョ", romanization: "yo" },
     ],
   },
+  {
+    base: "外來語擴張音",
+    note: "輔音假名 + 小母音\n用來表示外來語音（fa, ti, di 等）",
+    basicSoundCombinations: {
+      hiragana: ["ふ", "て", "で", "し", "ち", "じ"],
+      katakana: ["フ", "テ", "デ", "シ", "チ", "ジ"],
+      romanization: ["fu", "te", "de", "shi", "chi", "ji"],
+    },
+    data: [
+      { hiragana: "ぁ", katakana: "ァ", romanization: "a" },
+      { hiragana: "ぃ", katakana: "ィ", romanization: "i" },
+      { hiragana: "ぅ", katakana: "ゥ", romanization: "u" },
+      { hiragana: "ぇ", katakana: "ェ", romanization: "e" },
+      { hiragana: "ぉ", katakana: "ォ", romanization: "o" },
+    ],
+  },
   //
   {
     base: "長音符",
