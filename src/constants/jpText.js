@@ -204,71 +204,56 @@ export const phonics = {
 
 export const longToneRule = [
   {
-    condition: "兩個相同母音連在一起",
+    type: "katakana",
+    condition: "外來語通常使用長音符「ー」",
+    note: "片假名一律用 ー 表示母音延長",
     example: [
-      {
-        word: "おかあさん (okaasan)",
-        meaning: "媽媽",
-      },
-      {
-        word: "きいろ (kiiro)",
-        meaning: "黃色",
-      }
+      { word: "コーヒー (koohii)", meaning: "咖啡" },
+      { word: "スーパー (suupaa)", meaning: "超市" },
+      { word: "メール (meeru)", meaning: "電子郵件" }
     ]
   },
   {
-    condition: "假名後面接同段母音",
+    type: "hiragana",
+    condition: "え段假名 + い（拼寫不變）",
+    note: "最常見長音之一，發音會拉長成 えー",
     example: [
-      {
-        word: "かお (kao)",
-        meaning: "臉",
-      },
-      {
-        word: "きょう (kyou)",
-        meaning: "今天",
-      }
+      { word: "えいが (eiga)", meaning: "電影" },
+      { word: "けいさつ (keisatsu)", meaning: "警察" },
+      { word: "せんせい (sensei)", meaning: "老師" }
     ]
   },
   {
-    condition: "お段的假名後面接「う」",
+    type: "hiragana",
+    condition: "お段假名 + う（拼寫不變）",
+    note: "最常見長音之一，發音會拉長成 おー",
     example: [
-      {
-        word: "おとうさん (otousan)",
-        meaning: "爸爸",
-      },
-      {
-        word: "こうこう (koukou)",
-        meaning: "高中",
-      }
+      { word: "おとうさん (otousan)", meaning: "爸爸" },
+      { word: "こうこう (koukou)", meaning: "高中" },
+      { word: "きょう (kyou)", meaning: "今天" }
+    ]
+  },
+
+  {
+    type: "hiragana",
+    condition: "假名 + 同一母音假名（拼寫不變）",
+    note: "兩個あ連在一起時形成長音",
+    example: [
+      { word: "おかあさん (okaasan)", meaning: "媽媽" },
+      { word: "いい (ii)", meaning: "好" },
+      { word: "すう (suu)", meaning: "吸（音）" },
     ]
   },
   {
-    condition: "え段的假名後面接「い」",
+    type: "exception",
+    condition: "あ段 + う 不一定屬於規則長音",
+    note: "例如 買う（かう）理論為 か・う 兩拍，但口語可能接近 かー",
     example: [
-      {
-        word: "えいが (eiga)",
-        meaning: "電影",
-      },
-      {
-        word: "けいさつ (keisatsu)",
-        meaning: "警察",
-      }
-    ]
-  },
-  {
-    condition: "外來語通常用長音符「ー」來表示長音",
-    example: [
-      {
-        word: "コーヒー (koohii)",
-        meaning: "咖啡",
-      },
-      {
-        word: "スーパー (suupaa)",
-        meaning: "超市",
-      }
+      { word: "かう (kau)", meaning: "買（原形）" },
+      { word: "かお (kao)", meaning: "臉（不是長音）" }
     ]
   }
-]
+];
 
 export const youon = [
   {
