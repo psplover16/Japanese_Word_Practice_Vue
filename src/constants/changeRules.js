@@ -538,3 +538,162 @@ export const kaVerbConjugationRules = [
         ],
     },
 ]
+
+export const iAdjuctiveConjugationRules = [
+    {
+        base: 'MIZEN',
+        baseEnding: 'く',
+        suffixAndMeaning: [
+            {
+                suffix: "ない",
+                meaning: "否定"
+            },
+        ],
+    },
+    {
+        base: 'RENYOUOUTSIDE',
+        baseEnding: 'く',
+        suffixAndMeaning: [
+            {
+                suffix: "て",
+                meaning: "句子並列與接續"
+            },
+        ]
+    },
+    {
+        base: 'RENYOUINSIDE',
+        baseEnding: 'かっ',
+        suffixAndMeaning: [
+            {
+                suffix: "た",
+                meaning: "描述過去的人事物"
+            },
+        ]
+    },
+    {
+        base: 'JISHO',
+        baseEnding: 'い',
+        suffixAndMeaning: [
+            {
+                suffix: "",
+                meaning: "描述現在的人事物"
+            }
+        ]
+    },
+    {
+        base: 'KATEI',
+        baseEnding: 'けれ',
+        suffixAndMeaning: [
+            {
+                suffix: "ば",
+                meaning: ""
+            },
+        ],
+    },
+];
+
+export const naiAdjuctiveConjugationRules = [
+    {
+        base: 'MIZEN',
+        baseEnding: 'く',
+        suffixAndMeaning: [
+            {
+                suffix: "ない",
+                meaning: "雙重否定"
+            },
+        ],
+    },
+    {
+        base: 'RENYOUOUTSIDE',
+        baseEnding: 'く',
+        suffixAndMeaning: [
+            {
+                suffix: "て",
+                meaning: "否定前置詞後接續"
+            },
+        ]
+    },
+    {
+        base: 'RENYOUINSIDE',
+        baseEnding: 'かっ',
+        suffixAndMeaning: [
+            {
+                suffix: "た",
+                meaning: "過去否定"
+            },
+        ]
+    },
+    {
+        base: 'JISHO',
+        baseEnding: 'い',
+        suffixAndMeaning: [
+            {
+                suffix: "",
+                meaning: "否定前置詞"
+            }
+        ]
+    },
+    {
+        base: 'KATEI',
+        baseEnding: 'けれ',
+        suffixAndMeaning: [
+            {
+                suffix: "ば",
+                meaning: "否定條件"
+            },
+        ],
+    },
+];
+
+export const baAuxiliaryVerbsRules = [
+    {
+        base: 'MIZEN',
+        baseEnding: 'では',
+        suffixAndMeaning: [
+            {
+                suffix: "ない",
+                meaning: "否定"
+            },
+        ],
+    },
+    {
+        base: 'RENYOUOUTSIDE',
+        baseEnding: 'で',
+        suffixAndMeaning: [
+            {
+                suffix: "",
+                meaning: "用於接續"
+            },
+        ]
+    },
+    {
+        base: 'RENYOUINSIDE',
+        baseEnding: 'だっ',
+        suffixAndMeaning: [
+            {
+                suffix: "た",
+                meaning: "描述過去的人事物"
+            },
+        ]
+    },
+    {
+        base: 'JISHO',
+        baseEnding: 'だ',
+        suffixAndMeaning: [
+            {
+                suffix: "",
+                meaning: "描述現在時態的人事物"
+            }
+        ]
+    },
+    {
+        base: 'KATEI',
+        baseEnding: 'なら',
+        suffixAndMeaning: [
+            {
+                suffix: "ば",
+                meaning: "用於條件句"
+            },
+        ],
+    },
+]

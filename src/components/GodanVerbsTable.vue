@@ -201,7 +201,7 @@ const tbodyTitle = (key, value) => {
           :key="index"
           class="bg-neutral-100 font-bold text-sm p-0.5 border border-gray-300 text-center"
         >
-          {{ value !== "base" ? changeGrammarParts(value) : value }}
+          {{ value !== "base" ? changeGrammarParts(value) : "" }}
         </th>
       </tr>
 

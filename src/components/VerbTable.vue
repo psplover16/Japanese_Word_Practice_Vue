@@ -13,6 +13,9 @@ const props = defineProps({
   title: {
     type: String,
   },
+  prefix: {
+    type: String,
+  },
   verbs: {
     type: String,
     required: true,
@@ -53,7 +56,7 @@ const dealSubValues = computed(() => {
     <thead class="">
       <tr>
         <td
-          :colspan="dealValues?.length"
+          :colspan="dealValues?.length + (prefix ? 1 : 0)"
           class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center text-nowrap whitespace-pre-wrap"
         >
           {{ title }}
@@ -84,10 +87,16 @@ const dealSubValues = computed(() => {
             {{ row.base }}
           </td>
           <td
-            v-if="rowIndex === 0 && suffixIndex === 0"
-            :rowspan="
-              dataTotalLength(values, 'suffixAndMeaning')
-            "
+            v-if="suffixIndex === 0 && rowIndex === 0 && prefix"
+            :rowspan="dataTotalLength(values, 'suffixAndMeaning')"
+            class="w-[80px] bg-white font-bold text-xs p-0.5 border border-gray-300"
+          >
+            {{ prefix }}
+          </td>
+
+          <td
+            v-if="rowIndex === 0 && suffixIndex === 0 && verbs"
+            :rowspan="dataTotalLength(values, 'suffixAndMeaning')"
             class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap"
           >
             {{ verbs }}
@@ -99,7 +108,9 @@ const dealSubValues = computed(() => {
           >
             {{ row.baseEnding }}
           </td>
-          <td class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap">
+          <td
+            class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap"
+          >
             {{ suffixAndMeaning.suffix }}
           </td>
           <td class="border border-gray-300 p-0.5 relative bg-white no-select">
@@ -124,10 +135,8 @@ const dealSubValues = computed(() => {
             {{ row.base }}
           </td>
           <td
-            v-if="rowIndex === 0 && suffixIndex === 0"
-            :rowspan="
-              dataTotalLength(subValues, 'suffixAndMeaning')
-            "
+            v-if="rowIndex === 0 && suffixIndex === 0 && verbs"
+            :rowspan="dataTotalLength(subValues, 'suffixAndMeaning')"
             class="border border-gray-300 p-0.5 relative no-select"
           >
             {{ verbs }}
