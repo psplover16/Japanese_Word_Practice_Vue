@@ -7,6 +7,14 @@ const route = useRoute();
 const router = useRouter();
 
 const title = computed(() => route.meta.title || "Japanese Word Practice");
+const routeBtnTheme = (btnRouteName) => {
+  const currentRouteName = route.name;
+  if (btnRouteName === currentRouteName) {
+    return "selected";
+  } else {
+    return "default";
+  }
+};
 </script>
 
 <template>
@@ -16,17 +24,27 @@ const title = computed(() => route.meta.title || "Japanese Word Practice");
       <div class="flex gap-2">
         <BaseBtn
           label="字母練習"
-          theme="default"
+          :theme="routeBtnTheme('LetterPractice')"
           @click="router.push({ name: 'LetterPractice' })"
         />
         <BaseBtn
+          label="變化規則"
+          :theme="routeBtnTheme('ChangeRules')"
+          @click="router.push({ name: 'ChangeRules' })"
+        />
+        <BaseBtn
           label="單字練習"
-          theme="default"
+          :theme="routeBtnTheme('WordPractice')"
           @click="router.push({ name: 'WordPractice' })"
         />
       </div>
     </div>
-    <router-view />
+
+    <div
+      class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
+    >
+      <router-view />
+    </div>
   </div>
 </template>
 

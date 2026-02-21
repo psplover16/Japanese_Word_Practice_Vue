@@ -191,128 +191,124 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
-  >
-    <div class="flex justify-between items-center gap-5">
-      <div class="flex flex-col flex-1">
-        <input
-          type="text"
-          class="w-full h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
-          placeholder="搜尋"
-          v-model="searchText"
-        />
-        <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
-      </div>
-      <div class="w-[90px]">
-        <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
-        <BaseCheckbox label="漢字" v-model="isShowHanji" />
-        <BaseCheckbox
-          label="只顯示註記"
-          v-model="isOnlyShowNotedWords"
-          class="ml-0.5"
-        />
-      </div>
+  <div class="flex justify-between items-center gap-5">
+    <div class="flex flex-col flex-1">
+      <input
+        type="text"
+        class="w-full h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+        placeholder="搜尋"
+        v-model="searchText"
+      />
+      <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
     </div>
-    <div class="flex justify-between items-center">
-      <span>{{ resultData.length }}個單字</span>
-      <BaseBtn
-        label="儲存註記"
-        theme="default"
-        @click="saveNote"
-        :class="{
-          invisible: resultData.length === 0,
-        }"
+    <div class="w-[90px]">
+      <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
+      <BaseCheckbox label="漢字" v-model="isShowHanji" />
+      <BaseCheckbox
+        label="只顯示註記"
+        v-model="isOnlyShowNotedWords"
+        class="ml-0.5"
       />
     </div>
-    <div class="overflow-y-auto tableMaxHeight">
-      <table class="w-full border-separate border-spacing-0">
-        <thead class="sticky top-0 bg-neutral-100 z-10">
-          <tr>
-            <th class="thStyle">
-              <BaseCheckbox label="單字" v-model="isShowWords" />
-            </th>
-            <th class="thStyle flex gap-2">
-              <BaseCheckbox
-                :label="isShowHanji ? '漢字' : '拼音'"
-                v-model="isShowRomanization"
+  </div>
+  <div class="flex justify-between items-center">
+    <span>{{ resultData.length }}個單字</span>
+    <BaseBtn
+      label="儲存註記"
+      theme="default"
+      @click="saveNote"
+      :class="{
+        invisible: resultData.length === 0,
+      }"
+    />
+  </div>
+  <div class="overflow-y-auto tableMaxHeight">
+    <table class="w-full border-separate border-spacing-0">
+      <thead class="sticky top-0 bg-neutral-100 z-10">
+        <tr>
+          <th class="thStyle">
+            <BaseCheckbox label="單字" v-model="isShowWords" />
+          </th>
+          <th class="thStyle flex gap-2">
+            <BaseCheckbox
+              :label="isShowHanji ? '漢字' : '拼音'"
+              v-model="isShowRomanization"
+            />
+          </th>
+          <th class="thStyle">
+            <BaseCheckbox label="中文" v-model="isShowMeaning" />
+          </th>
+          <th class="thStyle" width="22">
+            <div class="flex justify-center p-1">
+              <input
+                type="checkbox"
+                v-model="isDeleteAllNote"
+                @change="onDeleteAllChange"
+                title="刪除全部註記"
               />
-            </th>
-            <th class="thStyle">
-              <BaseCheckbox label="中文" v-model="isShowMeaning" />
-            </th>
-            <th class="thStyle" width="22">
-              <div class="flex justify-center p-1">
-                <input
-                  type="checkbox"
-                  v-model="isDeleteAllNote"
-                  @change="onDeleteAllChange"
-                  title="刪除全部註記"
-                />
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- index 是雷點，因為並非穩定為一，會讓 Vue 在 diff 時錯把 DOM 元素重用到不同的資料上，導致事件、元件狀態、checkbox、長按 flag 等和資料錯位 -->
-          <tr
-            v-for="(resultDataVal, index) in resultData"
-            :key="resultDataVal.id"
-            :class="{ 'bg-red-200': resultDataVal.note }"
-            v-longPress="{
-              handler: () => onRowLongPress(resultDataVal.id),
-              onRelease: () => onRowLongPressRelease(resultDataVal.id),
-              duration: 400,
-            }"
-            @click="onRowClick(resultDataVal.id)"
-          >
-            <td class="tdStyle no-select" width="30%">
-              <span
-                :class="{
-                  invisible: !isShowWords && !isLongPress[resultDataVal.id],
-                }"
-              >
-                {{
-                  isShowPracticeWords
-                    ? swapKana(resultDataVal.text)
-                    : resultDataVal.text
-                }}
-              </span>
-            </td>
-            <td class="tdStyle no-select" width="20%">
-              <span
-                :class="{
-                  invisible:
-                    !isShowRomanization && !isLongPress[resultDataVal.id],
-                }"
-              >
-                {{
-                  isShowHanji ? resultDataVal.kanji : resultDataVal.romanization
-                }}
-              </span>
-            </td>
-            <td class="tdStyle no-select">
-              <span
-                :class="{
-                  invisible: !isShowMeaning && !isLongPress[resultDataVal.id],
-                }"
-              >
-                {{ resultDataVal.meaning }}
-              </span>
-            </td>
-            <td class="tdStyle no-select">
-              <div class="flex justify-center p-1">
-                <input
-                  type="checkbox"
-                  v-model="wantNoteId[resultDataVal.id]"
-                  @click.stop
-                />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- index 是雷點，因為並非穩定為一，會讓 Vue 在 diff 時錯把 DOM 元素重用到不同的資料上，導致事件、元件狀態、checkbox、長按 flag 等和資料錯位 -->
+        <tr
+          v-for="(resultDataVal, index) in resultData"
+          :key="resultDataVal.id"
+          :class="{ 'bg-red-200': resultDataVal.note }"
+          v-longPress="{
+            handler: () => onRowLongPress(resultDataVal.id),
+            onRelease: () => onRowLongPressRelease(resultDataVal.id),
+            duration: 400,
+          }"
+          @click="onRowClick(resultDataVal.id)"
+        >
+          <td class="tdStyle no-select" width="30%">
+            <span
+              :class="{
+                invisible: !isShowWords && !isLongPress[resultDataVal.id],
+              }"
+            >
+              {{
+                isShowPracticeWords
+                  ? swapKana(resultDataVal.text)
+                  : resultDataVal.text
+              }}
+            </span>
+          </td>
+          <td class="tdStyle no-select" width="20%">
+            <span
+              :class="{
+                invisible:
+                  !isShowRomanization && !isLongPress[resultDataVal.id],
+              }"
+            >
+              {{
+                isShowHanji ? resultDataVal.kanji : resultDataVal.romanization
+              }}
+            </span>
+          </td>
+          <td class="tdStyle no-select">
+            <span
+              :class="{
+                invisible: !isShowMeaning && !isLongPress[resultDataVal.id],
+              }"
+            >
+              {{ resultDataVal.meaning }}
+            </span>
+          </td>
+          <td class="tdStyle no-select">
+            <div class="flex justify-center p-1">
+              <input
+                type="checkbox"
+                v-model="wantNoteId[resultDataVal.id]"
+                @click.stop
+              />
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 

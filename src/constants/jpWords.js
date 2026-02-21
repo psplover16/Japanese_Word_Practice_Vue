@@ -48,6 +48,7 @@ export default [
     { text: 'なみ', romanization: 'na-mi', kanji: '波', meaning: '波浪', stage: 'Stage1_基礎生活' },
     { text: 'ぬの', romanization: 'nu-no', kanji: '布', meaning: '布', stage: 'Stage1_基礎生活' },
     { text: 'ねこ', romanization: 'ne-ko', kanji: '猫', meaning: '貓', stage: 'Stage1_基礎生活' },
+    { text: 'さんぼ', romanization: 'san-bo', kanji: '散歩', meaning: '散步', stage: 'Stage1_基礎生活' },
     { text: 'のり', romanization: 'no-ri', kanji: '海苔', meaning: '海苔', stage: 'Stage1_基礎生活' },
     { text: 'はし', romanization: 'ha-shi', kanji: '橋\n箸\n端', meaning: '橋(名詞)\n筷子(名詞)\n邊緣／末端(名詞)', stage: 'Stage1_基礎生活' },
     { text: 'ひる', romanization: 'hi-ru', kanji: '昼', meaning: '中午 (一段動詞)', stage: 'Stage1_基礎生活' },
