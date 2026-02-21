@@ -9,8 +9,7 @@ import { storeToRefs } from "pinia";
 
 const lettersMemory = useLettersMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
-const { setRecord, setOldRecords } = lettersMemory;
-const { getOldRecord } = storeToRefs(lettersMemory);
+const { setRecord } = lettersMemory;
 const { dealAllTextDataComputed, testNum } = storeToRefs(chooseTestAreaStore);
 
 const noticeCardVisible = ref(false);
@@ -82,6 +81,7 @@ const idk = () => {
 
 function close() {
   noticeCardVisible.value = false;
+  if (wrongText.value.length === 0) return;
   setRecord(
     // 依平假名排序一次（方便閱讀）
     wrongText.value.sort((a, b) =>

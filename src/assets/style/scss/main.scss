@@ -4,9 +4,30 @@
 
 $primary: #42b883;
 
+html,
+body {
+    margin: 0;
+    // 關閉（抑制）元素在超出滾動邊界時的預設行為
+    overscroll-behavior: none;
+    // 禁止用戶選取文本
+    -webkit-user-select: none; /* iOS Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge 舊版 */
+    user-select: none; /* 標準 */
+}
+
+input,
+textarea,
+select {
+    font-size: 16px;
+}
+
 body {
     background-color: theme("colors.brandGray");
     font-family: sans-serif;
+    // 控制垂直方向（y 軸）的「超出滾動行為」
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* 禁止文字被選取的工具類別 */

@@ -1,6 +1,6 @@
 export const letters = [
   {
-    rowLabel: { jp: "あ段", romanization: "a" },
+    rowLabel: { jp: "あ行", romanization: "a" },
     cells: [
       { romanization: "a", hiragana: "あ", katakana: "ア" },
       { romanization: "i", hiragana: "い", katakana: "イ" },
@@ -111,6 +111,19 @@ export const letters = [
   },
 ];
 
+export const oldLetters = [
+  { romanization: "wi", hiragana: "ゐ", katakana: "ヰ", reason: "現代日語已不使用，主要出現在歷史拼寫" },
+  { romanization: "we", hiragana: "ゑ", katakana: "ヱ", reason: "現代日語已不使用，主要出現在歷史拼寫" },
+];
+
+export const specialLetters = [
+  { romanization: "ha", hiragana: "は", katakana: "", reason: "本來念「ha」，但當助詞時念「wa」" },
+  { romanization: "he", hiragana: "へ", katakana: "", reason: "本來念「he」，但當助詞時念「え (e)」" },
+  { romanization: "wo", hiragana: "を", katakana: "ヲ", reason: "現代日語中主要作為助詞使用，發音通常為「o」" },
+  { romanization: "ji", hiragana: "ぢ", katakana: "ヂ", reason: "多數情況與 じ 同音，現代日語少用，主要出現在連濁或歷史拼寫" },
+  { romanization: "zu", hiragana: "づ", katakana: "ヅ", reason: "多數情況與 ず 同音，現代日語少用，主要出現在連濁或固定詞彙" },
+];
+
 export const dakutenMap = [
   // 濁音
   [
@@ -153,11 +166,94 @@ export const dakutenMap = [
 ];
 
 export const sokuon = {
+  base: "促音",
   hiragana: "っ",
   katakana: "ッ",
-  romanization: "促音",
-  rule: "後接 k/s/t/p 行，發音停頓/加強",
+  romanization: "",
+  rule: "寫法上，比正常假名小。\n第一個字讀快一拍，第二個字讀正常拍",
+  example: [
+    {
+      word: "がっこう (gakkou)",
+      meaning: "學校",
+    },
+    {
+      word: "きって (kitte)",
+      meaning: "郵票",
+
+    }
+  ]
 };
+
+export const phonics = {
+  base: "撥音",
+  hiragana: "ん",
+  katakana: "ン",
+  romanization: "n",
+  rule: "發音時嘴巴閉上，聲帶震動，聲音從鼻子出來\n在某些情況下會變成 m、n、ng 的發音",
+  example: [
+    {
+      word: "さんぽ (sanpo)",
+      meaning: "散步",
+    },
+    {
+      word: "せんせい (sensei)",
+      meaning: "老師",
+    }
+  ]
+};
+
+export const longToneRule = [
+  {
+    type: "katakana",
+    condition: "外來語通常使用長音符「ー」",
+    note: "片假名一律用 ー 表示母音延長",
+    example: [
+      { word: "コーヒー (koohii)", meaning: "咖啡" },
+      { word: "スーパー (suupaa)", meaning: "超市" },
+      { word: "メール (meeru)", meaning: "電子郵件" }
+    ]
+  },
+  {
+    type: "hiragana",
+    condition: "え段假名 + い（拼寫不變）",
+    note: "最常見長音之一，發音會拉長成 えー",
+    example: [
+      { word: "えいが (eiga)", meaning: "電影" },
+      { word: "けいさつ (keisatsu)", meaning: "警察" },
+      { word: "せんせい (sensei)", meaning: "老師" }
+    ]
+  },
+  {
+    type: "hiragana",
+    condition: "お段假名 + う（拼寫不變）",
+    note: "最常見長音之一，發音會拉長成 おー",
+    example: [
+      { word: "おとうさん (otousan)", meaning: "爸爸" },
+      { word: "こうこう (koukou)", meaning: "高中" },
+      { word: "きょう (kyou)", meaning: "今天" }
+    ]
+  },
+
+  {
+    type: "hiragana",
+    condition: "假名 + 同一母音假名（拼寫不變）",
+    note: "兩個あ連在一起時形成長音",
+    example: [
+      { word: "おかあさん (okaasan)", meaning: "媽媽" },
+      { word: "いい (ii)", meaning: "好" },
+      { word: "すう (suu)", meaning: "吸（音）" },
+    ]
+  },
+  {
+    type: "exception",
+    condition: "あ段 + う 不一定屬於規則長音",
+    note: "例如 買う（かう）理論為 か・う 兩拍，但口語可能接近 かー",
+    example: [
+      { word: "かう (kau)", meaning: "買（原形）" },
+      { word: "かお (kao)", meaning: "臉（不是長音）" }
+    ]
+  }
+];
 
 export const youon = [
   {
@@ -188,6 +284,22 @@ export const youon = [
       { hiragana: "ょ", katakana: "ョ", romanization: "yo" },
     ],
   },
+  {
+    base: "外來語擴張音",
+    note: "輔音假名 + 小母音\n用來表示外來語音（fa, ti, di 等）",
+    basicSoundCombinations: {
+      hiragana: ["ふ", "て", "で", "し", "ち", "じ"],
+      katakana: ["フ", "テ", "デ", "シ", "チ", "ジ"],
+      romanization: ["fu", "te", "de", "shi", "chi", "ji"],
+    },
+    data: [
+      { hiragana: "ぁ", katakana: "ァ", romanization: "a" },
+      { hiragana: "ぃ", katakana: "ィ", romanization: "i" },
+      { hiragana: "ぅ", katakana: "ゥ", romanization: "u" },
+      { hiragana: "ぇ", katakana: "ェ", romanization: "e" },
+      { hiragana: "ぉ", katakana: "ォ", romanization: "o" },
+    ],
+  },
   //
   {
     base: "長音符",
@@ -205,4 +317,81 @@ export const youon = [
       },
     ],
   },
+];
+
+export const similarLetters = [
+  [
+    { romanization: 'a', hiragana: 'あ' },
+    { romanization: 'nu', hiragana: 'ぬ' },
+    { romanization: 'ne', hiragana: 'ね' },
+    { romanization: 'me', hiragana: 'め' },
+    { romanization: 're', hiragana: 'れ' },
+    { romanization: 'wa', hiragana: 'わ' },
+    { romanization: 'yu', hiragana: 'ゆ' },
+  ],
+  [
+    { romanization: 'i', hiragana: 'い' },
+    { romanization: 'ke', hiragana: 'け' },
+    { romanization: 'ha', hiragana: 'は' },
+    { romanization: 'na', hiragana: 'な' },
+    { romanization: 'ho', hiragana: 'ほ' },
+    { romanization: 'ta', hiragana: 'た' },
+    { romanization: 'wo', hiragana: 'を' },
+  ],
+  [
+    { romanization: 'u', hiragana: 'う' },
+    { romanization: 'ra', katakana: 'ラ' },
+    { romanization: 'fu', katakana: 'フ' },
+    { romanization: 'tsu', hiragana: 'つ' },
+    { romanization: 'to', hiragana: 'と' },
+  ],
+  [
+    { romanization: 'u', katakana: 'ウ' },
+    { romanization: 'wa', katakana: 'ワ' },
+    { romanization: 'wo', katakana: 'ヲ' },
+    { romanization: 'ku', katakana: 'ク' },
+    { romanization: 'ke', katakana: 'ケ' },
+  ],
+  [
+    { romanization: 'ki', hiragana: 'き' },
+    { romanization: 'sa', hiragana: 'さ' },
+    { romanization: 'ma', hiragana: 'ま' },
+    { romanization: 'chi', hiragana: 'ち' },
+    { romanization: 'ra', hiragana: 'ら' },
+  ],
+  [
+    { romanization: 'ko', katakana: 'コ' },
+    { romanization: 'yo', katakana: 'ヨ' },
+  ],
+  [
+    { romanization: 'so', hiragana: 'そ' },
+    { romanization: 'ru', hiragana: 'る' },
+    { romanization: 'ro', hiragana: 'ろ' },
+  ],
+  [
+
+    { romanization: 'shi', katakana: 'シ' },
+    { romanization: 'tsu', katakana: 'ツ' },
+    { romanization: 'mi', katakana: 'ミ' },
+  ],
+  [
+    { romanization: 'so', katakana: 'ソ' },
+    { romanization: 'n', katakana: 'ン' },
+  ],
+  [
+    { romanization: 'ta', katakana: 'タ' },
+    { romanization: 'nu', katakana: 'ヌ' },
+  ],
+  [
+    { romanization: 'sa', katakana: 'サ' },
+    { romanization: 'se', hiragana: 'せ' },
+    { romanization: 'se', katakana: 'セ' },
+  ],
+  [
+    { romanization: 'chi', katakana: 'チ' },
+    { romanization: 'te', katakana: 'テ' },
+    { romanization: 'na', katakana: 'ナ' },
+    { romanization: 'mo', hiragana: 'も' },
+    { romanization: 'mo', katakana: 'モ' },
+  ],
 ];

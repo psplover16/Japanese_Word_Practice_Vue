@@ -37,7 +37,7 @@ jobs:
         run: npm ci
     # 打包專案
       - name: Build
-        run: npm run build:dev
+        run: npm run build:githubPages
     # 把dist資料夾打包起來，交給 GitHub Pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,50 +1,78 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
+import { registerSW } from "virtual:pwa-register";
 import BaseBtn from "@/components/BaseBtn.vue";
 
-const status = ref();
-// 讓模板可以存取版本號，同時提供開發時的 fallback
 const APP_VERSION =
   typeof __APP_VERSION__ === "undefined" ? "dev" : __APP_VERSION__;
 
-function handler(e) {
-  const detail = e.detail;
-  status.value = detail.status;
-}
+const status = ref("");
+
+let updateSW;
+let statusTimer = null;
+
+const setStatus = (text, autoClearMs) => {
+  // 取消舊的 timer
+  if (statusTimer) {
+    clearTimeout(statusTimer);
+    statusTimer = null;
+  }
+  status.value = text;
+  if (autoClearMs) {
+    statusTimer = setTimeout(() => {
+      status.value = "";
+      statusTimer = null;
+    }, autoClearMs);
+  }
+};
 
 onMounted(() => {
-  globalThis.addEventListener("pwa-status", handler);
-});
+  // PWA Service Worker 註冊
+  updateSW = registerSW({
+    // onNeedRefresh之後，新 SW 是不是立刻接管目前頁面
+    immediate: false,
 
-onUnmounted(() => {
-  globalThis.removeEventListener("pwa-status", handler);
-});
+    // 第一次可離線
+    onOfflineReady() {
+      setStatus("✅ 可離線使用", 1500);
+    },
 
-function reload() {
-  globalThis.location.reload();
-}
+    // SW 已成功註冊（但不代表已啟用）- 沒整個刪掉，通常SW期限很久
+    onRegistered(registration) {
+      console.log(registration);
+      // 只有在有 installing worker（代表有新版本正在下載）時才顯示「下載中」訊息。
+      // registerSW 會在每次頁面載入時呼叫註冊流程，onRegistered 不代表正在下載新資源，
+      // 因此直接顯示訊息會導致每次開頁都看到提示。
+      if (registration && registration.installing) {
+        setStatus("正在下載應用資源\n完成後可離線使用", 2000);
+      }
+    },
+
+    // 新 Service Worker 已下載完成，但正在 waiting，還沒套用
+    onNeedRefresh() {
+      const time = 2000;
+      setStatus("✅資源下載完成", time);
+      setTimeout(() => {
+        updateSW(true);
+      }, time);
+    },
+
+    // 錯誤
+    onRegisterError(error) {
+      console.error("[PWA] SW registration error", error);
+    },
+  });
+});
 </script>
 
 <template>
   <router-view />
-  <div class="banner" v-if="status === 'downloading' || status === 'ready'">
-    <div
-      v-if="status === 'downloading'"
-      class="banner flex flex-col items-center"
-    >
-      <div class="text-nowrap">正在下載應用資源</div>
-      <div class="text-nowrap">完成後可離線使用</div>
-    </div>
-
-    <div
-      v-if="status === 'ready'"
-      class="banner flex flex-col items-center gap-y-1"
-    >
-      <div class="text-nowrap">✅ 下載完成</div>
-      <BaseBtn label="重新載入" theme="default" @click="reload" />
-    </div>
+  <div class="banner" v-if="!!status">
+    <div class="whitespace-pre-wrap break-words">{{ status }}</div>
   </div>
-  <div class="h-8 text-right px-3">版本號: {{ APP_VERSION }}</div>
+  <div class="h-10 flex justify-end items-center px-3 max-w-[1100px] mx-auto">
+    {{ APP_VERSION }}
+  </div>
 </template>
 
 <style lang="scss" scoped>

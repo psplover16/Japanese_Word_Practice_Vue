@@ -1,9 +1,19 @@
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from "vue";
-
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import { letters, dakutenMap, youon, sokuon } from "@/constants/jpText.js";
+import BaseTable from "@/components/BaseTable.vue";
+import YoanTable from "@/components/YoanTable.vue";
+import LongToneTable from "@/components/LongToneTable.vue";
+import {
+  letters,
+  dakutenMap,
+  sokuon,
+  oldLetters,
+  specialLetters,
+  similarLetters,
+  phonics,
+} from "@/constants/jpText.js";
 import NoticeCard from "@/components/NoticeCard.vue";
 
 import useLettersMemoryStore from "@/stores/lettersMemory.js";
@@ -22,61 +32,43 @@ const {
   includeDakuten,
   includeSokuon,
   includeYouon,
+  includeOldLetters,
+  isOnlySimilarLetters,
+  rowSelected,
+  colSelected,
+  allChoose,
 } = storeToRefs(chooseTestAreaStore);
 
-// `allChoose` 作為 computed getter/setter，避免額外的 watch 迴圈
-const allChoose = computed({
-  get() {
-    return (
-      includeHiragana.value &&
-      includeKatakana.value &&
-      isFullSelection.value &&
-      includeDakuten.value &&
-      includeSokuon.value &&
-      includeYouon.value
-    );
-  },
-  set(val) {
-    if (val) {
-      letters.forEach((row, r) => {
-        row.cells.forEach((cell, c) => {
-          if (cell?.hiragana && cell?.katakana)
-            chooseTestAreaStore.selectedLetters[`${r}-${c}`] = true;
-        });
-      });
-    } else {
-      Object.keys(chooseTestAreaStore.selectedLetters).forEach(
-        (k) => (chooseTestAreaStore.selectedLetters[k] = false),
-      );
-    }
-    includeHiragana.value = val;
-    includeKatakana.value = val;
-    includeDakuten.value = val;
-    includeSokuon.value = val;
-    includeYouon.value = val;
-  },
-});
-
 const lettersSelectedCount = computed(() => {
-  return Object.values(chooseTestAreaStore.selectedLetters).filter((v) => v)
-    .length;
+  return chooseTestAreaStore.getChoosedLettersData?.length || 0;
 });
 
-const isFullSelection = computed(() => {
-  const totalLetters = letters.reduce((total, row) => {
-    return (
-      total +
-      row.cells.filter((cell) => cell?.hiragana && cell?.katakana).length
-    );
-  }, 0);
-  //
-  return lettersSelectedCount.value === totalLetters;
+const specialWords = computed(() => {
+  return [...specialLetters, ...oldLetters];
 });
+
+const similarLettersMaxLength = computed(() => {
+  return Math.max(...similarLetters.map((group) => group.length));
+});
+
+const trAddEmprtyTd = (originalData) => {
+  const trData = structuredClone(originalData);
+  if (trData.length === similarLettersMaxLength.value) return trData;
+  const emptyTdCount = similarLettersMaxLength.value - trData.length;
+  for (let i = 0; i < emptyTdCount; i++) {
+    trData.push(null);
+  }
+  return trData;
+};
 
 const noticeCardVisible = ref(false);
 
 const instinateTest = () => {
-  if (!includeHiragana.value && !includeKatakana.value) {
+  if (
+    !includeHiragana.value &&
+    !includeKatakana.value &&
+    !isOnlySimilarLetters.value
+  ) {
     alert("請至少選擇平假名或片假名其中一項才能開始出題！");
     return;
   }
@@ -84,22 +76,22 @@ const instinateTest = () => {
     alert("題數必須大於 0 才能開始出題！");
     return;
   }
-  if (lettersSelectedCount.value === 0) {
+  if (lettersSelectedCount.value === 0 && !isOnlySimilarLetters.value) {
     alert("請至少選擇一個音節才能開始出題！");
     return;
   }
   noticeCardVisible.value = true;
 };
 
-const combineBasicSoundCombinations = (data) => {
-  const result = [];
-  data.hiragana.forEach((item, index) => {
-    result.push({
-      words: `${item}/${data.katakana[index]}`,
-      romanization: data.romanization[index],
-    });
+const excludeOldLetters = (cellData) => {
+  if (includeOldLetters.value) return cellData;
+  return cellData.map((cell) => {
+    if (!cell) return null;
+    const isOldLetters = oldLetters.some(
+      (old) => old.hiragana === cell.hiragana || old.katakana === cell.katakana,
+    );
+    return isOldLetters ? null : cell;
   });
-  return result;
 };
 
 watch(
@@ -126,7 +118,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
+    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
   >
     <form
       class="flex flex-col gap-2 justify-center flex-wrap"
@@ -158,6 +150,10 @@ onMounted(() => {
           <BaseCheckbox label="促音" v-model="includeSokuon" />
           <BaseCheckbox label="拗音/合拗音/長音符" v-model="includeYouon" />
         </div>
+        <div class="flex items-center gap-x-2 gap-y-1 flex-wrap">
+          <BaseCheckbox label="古語假名" v-model="includeOldLetters" />
+          <BaseCheckbox label="相近音節" v-model="isOnlySimilarLetters" />
+        </div>
         <div class="flex gap-1 items-center justify-between w-full">
           <div class="flex gap-1">
             <BaseBtn label="送出" type="submit" theme="submit" />
@@ -185,7 +181,9 @@ onMounted(() => {
         >
           <thead>
             <tr>
-              <td colspan="6">清音：沒有濁點（゛）或半濁點（゜）的基本假名音</td>
+              <td colspan="6">
+                清音：沒有濁點（゛）或半濁點（゜）的基本假名音
+              </td>
             </tr>
           </thead>
           <tbody>
@@ -198,9 +196,14 @@ onMounted(() => {
               <th
                 v-for="(value, index) in letters[0].cells"
                 :key="index"
-                class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
+                class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300 text-center"
               >
-                {{ value.hiragana }}段
+                <label
+                  class="flex gap-1.5 items-center text-sm cursor-pointer text-nowrap"
+                >
+                  <input type="checkbox" v-model="colSelected" :value="index" />
+                  {{ value.hiragana }}段
+                </label>
               </th>
             </tr>
             <tr v-for="(row, rowIndex) in letters" :key="rowIndex">
@@ -210,16 +213,25 @@ onMounted(() => {
                 <div
                   class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
                 >
-                  <div class="font-extrabold text-primary">
-                    {{ row?.rowLabel?.jp }}
-                  </div>
-                  <div class="font-bold text-muted">
-                    {{ row?.rowLabel?.romanization }}
-                  </div>
+                  <label class="font-bold text-muted">
+                    <div class="font-extrabold text-primary">
+                      {{ row?.rowLabel?.jp }}
+                    </div>
+                    <label
+                      class="flex gap-1.5 items-center text-sm cursor-pointer text-nowrap"
+                    >
+                      <input
+                        type="checkbox"
+                        v-model="rowSelected"
+                        :value="rowIndex"
+                      />
+                      {{ row?.rowLabel?.romanization }}
+                    </label>
+                  </label>
                 </div>
               </th>
               <td
-                v-for="(detailData, colIndex) in row.cells"
+                v-for="(detailData, colIndex) in excludeOldLetters(row.cells)"
                 :key="colIndex"
                 class="border border-gray-300 p-0.5 relative bg-white no-select"
               >
@@ -229,11 +241,8 @@ onMounted(() => {
                 >
                   <input
                     type="checkbox"
-                    v-model="
-                      chooseTestAreaStore.selectedLetters[
-                        `${rowIndex}-${colIndex}`
-                      ]
-                    "
+                    v-model="chooseTestAreaStore.selectedLetters"
+                    :value="`${rowIndex}-${colIndex}`"
                   />
                   <div class="flex flex-col justify-center items-center">
                     <div class="font-bold text-nowrap sm:text-xl text-lg">
@@ -259,7 +268,7 @@ onMounted(() => {
             class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
             colspan="5"
           >
-            濁音 / 半濁音
+            濁音(g/z/d/b) / 半濁音(p)
           </th>
         </tr>
       </thead>
@@ -281,92 +290,10 @@ onMounted(() => {
       </tr>
     </table>
 
-    <table class="w-full border-separate border-spacing-0 mt-3">
-      <thead>
-        <tr>
-          <td colspan="4">進階</td>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(row, rowIndex) in youon" :key="rowIndex">
-          <tr>
-            <td
-              class="bg-neutral-100 font-bold text-base p-1 border border-gray-30 whitespace-pre-wrap"
-              colspan="4"
-            >
-              {{ row?.base }}：{{ row?.note }}
-            </td>
-          </tr>
-          <tr>
-            <td
-              class="w-[60px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
-              <div
-                class="flex flex-col items-center justify-center gap-0.5 text-sm"
-              >
-                <div class="font-extrabold text-primary">基本音</div>
-              </div>
-            </td>
-            <td class="border border-gray-300 bg-neutral-100" colspan="3">
-              <div class="flex justify-around">
-                <div
-                  class="bg-neutral-100 font-bold p-0.5 flex items-center flex-col justify-center text-xs sm:text-base md:text-lg px-1"
-                  v-for="value in combineBasicSoundCombinations(
-                    row.basicSoundCombinations,
-                  )"
-                  :key="value.romanization"
-                >
-                  <div>{{ value.words }}</div>
-                  <div>{{ value.romanization }}</div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td
-              class="border border-gray-300 p-0.5 relative bg-white no-select"
-            ></td>
-            <td
-              v-for="(detailData, colIndex) in row.data"
-              :key="colIndex"
-              class="border border-gray-300 p-0.5 relative bg-white no-select"
-              :colspan="4 - row.data.length"
-            >
-              <div class="flex flex-col justify-center items-center">
-                <div class="font-bold text-nowrap sm:text-xl text-lg">
-                  {{
-                    `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
-                  }}
-                </div>
-                <div class="font-semibold text-xs text-muted">
-                  {{ detailData?.romanization }}
-                </div>
-              </div>
-            </td>
-          </tr>
-        </template>
-
-        <tr v-for="(row, rowIndex) in youon" :key="rowIndex" v-show="false">
-          <td
-            v-for="(detailData, colIndex) in row.data"
-            :key="colIndex"
-            class="border border-gray-300 p-0.5 relative bg-white no-select"
-            :colspan="4 - row.data.length"
-          >
-            <div class="flex flex-col justify-center items-center">
-              <div class="font-bold text-nowrap sm:text-xl text-lg">
-                {{
-                  `${detailData?.hiragana} ${detailData?.katakana && "/"} ${detailData?.katakana}`
-                }}
-              </div>
-              <div class="font-semibold text-xs text-muted">
-                {{ detailData?.romanization }}
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <BaseTable :tableData="phonics" alt="撥音" />
+    <BaseTable :tableData="sokuon" alt="促音" />
+    <YoanTable alt="拗音" />
+    <LongToneTable alt="長音規則" />
 
     <table class="w-full border-separate border-spacing-0 mt-3">
       <thead>
@@ -375,32 +302,63 @@ onMounted(() => {
             class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
             colspan="4"
           >
-            {{ sokuon.romanization }}: {{ sokuon.rule }}
+            特殊音節
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr v-for="(item, index) in specialWords" :key="index">
           <th
             class="w-[80px] bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
           >
             <div
-              class="min-h-[60px] flex flex-col items-center justify-center gap-0.5 text-sm"
+              class="flex flex-col items-center justify-center gap-0.5 text-sm"
             >
-              <div class="font-extrabold text-primary">
-                {{ sokuon?.romanization }}
+              <div
+                class="flex flex-col justify-center items-center font-extrabold text-primary"
+              >
+                <div class="font-bold text-nowrap sm:text-xl text-lg">
+                  {{
+                    `${item?.hiragana} ${item?.katakana && "/"} ${item?.katakana}`
+                  }}
+                </div>
+                <div class="font-semibold text-xs text-muted">
+                  {{ item?.romanization }}
+                </div>
               </div>
             </div>
           </th>
-          <td class="border border-gray-300 p-0.5 relative bg-white no-select">
+          <td class="border border-gray-300 p-1 relative bg-white no-select">
+            {{ item?.reason }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="w-full border-separate border-spacing-0 mt-3" v-if="true">
+      <thead>
+        <tr>
+          <th
+            class="bg-neutral-100 font-bold text-base p-1 border border-gray-30"
+            :colspan="similarLettersMaxLength"
+          >
+            相似字元
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in similarLetters" :key="index">
+          <td
+            class="border border-gray-300 p-1 relative bg-white no-select"
+            v-for="(subItem, subIndex) in trAddEmprtyTd(item)"
+            :key="subIndex"
+          >
             <div class="flex flex-col justify-center items-center">
               <div class="font-bold text-nowrap sm:text-xl text-lg">
-                {{
-                  `${sokuon?.hiragana} ${sokuon?.katakana && "/"} ${sokuon?.katakana}`
-                }}
+                {{ subItem?.hiragana || subItem?.katakana }}
               </div>
               <div class="font-semibold text-xs text-muted">
-                {{ sokuon?.romanization }}
+                {{ subItem?.romanization }}
               </div>
             </div>
           </td>

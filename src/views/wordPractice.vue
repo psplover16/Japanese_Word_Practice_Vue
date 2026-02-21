@@ -1,8 +1,7 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import BaseCheckbox from "@/components/BaseCheckbox.vue";
 import BaseBtn from "@/components/BaseBtn.vue";
-import wordPracticeText from "@/constants/jpWords.js";
 
 import useWordsMemoryStore from "@/stores/wordsMemory.js";
 import useChooseTestAreaStore from "@/stores/chooseTestArea.js";
@@ -17,14 +16,20 @@ const wordsMemory = useWordsMemoryStore();
 const chooseTestAreaStore = useChooseTestAreaStore();
 const { setOldStorageData, setWordsStorage, clearWordsStorage } = wordsMemory;
 const { kanaWithDakutenAndSokuonData } = storeToRefs(chooseTestAreaStore);
-const { getNoticeWords } = storeToRefs(wordsMemory);
+const { getNoticeWords, addIdwordPracticeText } = storeToRefs(wordsMemory);
+
+const isLongPress = ref({});
 
 const isShowWords = ref(true);
 const isShowPracticeWords = ref(false);
 const isShowRomanization = ref(false);
+const isShowHanji = ref(true);
 const isShowMeaning = ref(false);
 const wantNoteId = ref({});
-const isShowAllWords = ref(false);
+const isShowAllWords = ref(true);
+const isOnlyShowNotedWords = ref(false);
+const isDeleteAllNote = ref(false);
+const searchText = ref("");
 
 // 平假名轉片假名 + 片假名轉平假名
 function swapKana(str) {
@@ -89,35 +94,40 @@ function filterWordPracticeText(
   );
 }
 
-// 替wordPracticeText 加上 id 欄位，localStorage用
-// note欄位 若localStorage有id，則特別註記true
-const addIdwordPracticeText = computed(() => {
-  return wordPracticeText.map((item, index) => ({
-    id: index,
-    note: getNoticeWords.value.includes(index),
-    ...item,
-  }));
-});
+const filterSearchText = (text, searchText) => {
+  const searchLower = searchText.toLowerCase();
+  return text.toLowerCase().includes(searchLower);
+};
 
 const resultData = computed(() => {
+  let sendData;
+  // 顯示全部文字的話，就不過濾
   if (isShowAllWords.value) {
-    return addIdwordPracticeText.value;
+    sendData = addIdwordPracticeText.value;
+  } else {
+    sendData = filterWordPracticeText(
+      addIdwordPracticeText.value,
+      kanaWithDakutenAndSokuonData.value,
+    );
   }
-  return filterWordPracticeText(
-    addIdwordPracticeText.value,
-    kanaWithDakutenAndSokuonData.value,
-  );
+  // 過濾只顯示註記的單字
+  if (isOnlyShowNotedWords.value) {
+    sendData = sendData.filter((item) => item.note);
+  }
+  // 搜尋功能，過濾掉不包含搜尋字串的單字
+  if (searchText.value.trim() !== "") {
+    // 轉成英文小寫，讓大小寫不分
+    console.log(sendData);
+    sendData = sendData.filter(
+      (item) =>
+        filterSearchText(item.text, searchText.value) ||
+        filterSearchText(item.romanization, searchText.value) ||
+        filterSearchText(item.meaning, searchText.value) ||
+        filterSearchText(item.kanji, searchText.value),
+    );
+  }
+  return sendData;
 });
-
-watch(
-  () => getNoticeWords.value,
-  (newVal) => {
-    newVal.forEach((valId) => {
-      wantNoteId.value[valId] = true;
-    });
-  },
-  { deep: true },
-);
 
 // 把物件內值為true的key抽出來
 const trueKeys = (o) =>
@@ -131,18 +141,23 @@ const saveNote = () => {
     setWordsStorage(trueKeys(wantNoteId.value));
   }
 };
-const deleteNote = () => {
+
+const onDeleteAllChange = (e) => {
+  // 避免點擊刪除全部註記後，checkbox變成勾選狀態
+  if (!e.target.checked) return;
   if (confirm("確定要刪除全部註記嗎？")) {
+    isDeleteAllNote.value = false;
+    if (!confirm("刪除後，無法復原，確定要刪除嗎？")) return;
     clearWordsStorage();
     wantNoteId.value = {};
+  } else {
+    isDeleteAllNote.value = false;
   }
 };
 
 const onRowClick = (id) => {
   wantNoteId.value[id] = !wantNoteId.value[id];
 };
-
-const isLongPress = ref({});
 
 function onRowLongPress(id) {
   isLongPress.value[id] = true;
@@ -153,102 +168,146 @@ function onRowLongPressRelease(id) {
   isLongPress.value[id] = false;
 }
 
+watch(
+  () => getNoticeWords.value,
+  (newVal) => {
+    newVal.forEach((valId) => {
+      wantNoteId.value[valId] = true;
+    });
+  },
+  { deep: true },
+);
+
 onMounted(() => {
   setOldStorageData();
+  window.scrollTo(0, 0);
+
+  document.body.style.overflow = "hidden";
+});
+
+onUnmounted(() => {
+  document.body.style.overflow = "";
 });
 </script>
 
 <template>
   <div
-    class="flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-3 py-4 mt-3"
+    class="w-full flex flex-col gap-2 bg-white border border-gray-200 rounded-lg px-2 py-3 mt-2"
   >
-    <div class="flex justify-between">
-      <span>{{ resultData.length }}個單字</span>
-      <BaseCheckbox label="顯示全部" v-model="isShowAllWords" />
+    <div class="flex justify-between items-center gap-5">
+      <div class="flex flex-col flex-1">
+        <input
+          type="text"
+          class="w-full h-10 px-2 py-1 border border-gray-300 rounded-md outline-none focus:border-gray-500"
+          placeholder="搜尋"
+          v-model="searchText"
+        />
+        <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
+      </div>
+      <div class="w-[90px]">
+        <BaseCheckbox label="全部字音" v-model="isShowAllWords" />
+        <BaseCheckbox label="漢字" v-model="isShowHanji" />
+        <BaseCheckbox
+          label="只顯示註記"
+          v-model="isOnlyShowNotedWords"
+          class="ml-0.5"
+        />
+      </div>
     </div>
-    <div class="flex justify-between" v-if="resultData.length > 0">
-      <BaseBtn label="儲存註記" theme="default" @click="saveNote" />
-      <BaseBtn label="刪除全部註記" theme="reset" @click="deleteNote" />
+    <div class="flex justify-between items-center">
+      <span>{{ resultData.length }}個單字</span>
+      <BaseBtn
+        label="儲存註記"
+        theme="default"
+        @click="saveNote"
+        :class="{
+          invisible: resultData.length === 0,
+        }"
+      />
     </div>
     <div class="overflow-y-auto tableMaxHeight">
       <table class="w-full border-separate border-spacing-0">
         <thead class="sticky top-0 bg-neutral-100 z-10">
           <tr>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="單字" v-model="isShowWords" />
             </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
-              <BaseCheckbox label="練習" v-model="isShowPracticeWords" />
+            <th class="thStyle flex gap-2">
+              <BaseCheckbox
+                :label="isShowHanji ? '漢字' : '拼音'"
+                v-model="isShowRomanization"
+              />
             </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
-              <BaseCheckbox label="拼音" v-model="isShowRomanization" />
-            </th>
-            <th
-              class="bg-neutral-100 font-bold text-xs p-0.5 border border-gray-300"
-            >
+            <th class="thStyle">
               <BaseCheckbox label="中文" v-model="isShowMeaning" />
             </th>
-            <th
-              class="w-8 bg-neutral-100 font-bold text-xs p-2 border border-gray-300"
-            ></th>
+            <th class="thStyle" width="22">
+              <div class="flex justify-center p-1">
+                <input
+                  type="checkbox"
+                  v-model="isDeleteAllNote"
+                  @change="onDeleteAllChange"
+                  title="刪除全部註記"
+                />
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
+          <!-- index 是雷點，因為並非穩定為一，會讓 Vue 在 diff 時錯把 DOM 元素重用到不同的資料上，導致事件、元件狀態、checkbox、長按 flag 等和資料錯位 -->
           <tr
-            v-for="(value, index) in resultData"
-            :key="index"
-            :class="{ 'bg-red-200': value.note }"
+            v-for="(resultDataVal, index) in resultData"
+            :key="resultDataVal.id"
+            :class="{ 'bg-red-200': resultDataVal.note }"
             v-longPress="{
-              handler: () => onRowLongPress(value.id),
-              onRelease: (e) => onRowLongPressRelease(value.id),
-              duration: 600,
+              handler: () => onRowLongPress(resultDataVal.id),
+              onRelease: () => onRowLongPressRelease(resultDataVal.id),
+              duration: 400,
             }"
-            @click="onRowClick(value.id)"
+            @click="onRowClick(resultDataVal.id)"
           >
-            <td class="tdStyle no-select">
+            <td class="tdStyle no-select" width="30%">
               <span
-                :class="{ invisible: !isShowWords && !isLongPress[value.id] }"
+                :class="{
+                  invisible: !isShowWords && !isLongPress[resultDataVal.id],
+                }"
               >
-                {{ value.text }}
+                {{
+                  isShowPracticeWords
+                    ? swapKana(resultDataVal.text)
+                    : resultDataVal.text
+                }}
+              </span>
+            </td>
+            <td class="tdStyle no-select" width="20%">
+              <span
+                :class="{
+                  invisible:
+                    !isShowRomanization && !isLongPress[resultDataVal.id],
+                }"
+              >
+                {{
+                  isShowHanji ? resultDataVal.kanji : resultDataVal.romanization
+                }}
               </span>
             </td>
             <td class="tdStyle no-select">
               <span
                 :class="{
-                  invisible: !isShowPracticeWords && !isLongPress[value.id],
+                  invisible: !isShowMeaning && !isLongPress[resultDataVal.id],
                 }"
               >
-                {{ swapKana(value.text) }}
+                {{ resultDataVal.meaning }}
               </span>
             </td>
             <td class="tdStyle no-select">
-              <span
-                :class="{
-                  invisible: !isShowRomanization && !isLongPress[value.id],
-                }"
-              >
-                {{ value.romanization }}
-              </span>
-            </td>
-            <td class="tdStyle no-select">
-              <span
-                :class="{ invisible: !isShowMeaning && !isLongPress[value.id] }"
-              >
-                {{ value.meaning }}
-              </span>
-            </td>
-            <td class="border border-gray-300 p-2 relative bg-white no-select">
-              <BaseCheckbox
-                label=""
-                v-model="wantNoteId[value.id]"
-                @click.stop
-              />
+              <div class="flex justify-center p-1">
+                <input
+                  type="checkbox"
+                  v-model="wantNoteId[resultDataVal.id]"
+                  @click.stop
+                />
+              </div>
             </td>
           </tr>
         </tbody>
@@ -258,23 +317,30 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.thStyle {
+  border: 1px solid #d1d5db;
+  position: relative;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 2px;
+  background-color: #f3f4f6;
+  font-weight: 700;
+}
 .tdStyle {
   border: 1px solid #d1d5db;
   position: relative;
   font-size: 14px;
   line-height: 20px;
   padding: 2px;
-  > span {
-    text-wrap: wrap;
-  }
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 .tableMaxHeight {
-  // 儲存按鈕 32 + 儲存按鈕與表格間距 8 + 按鈕父層容器padding 16 + border 1px + 按鈕父層容器margin-top 12
-  // title 32，title上方margin 24
-  // 125px
-  //
-  // 按鈕父層容器padding 16 + border 1px + layout底部margin 24 + 版本號32px
-  // 113
-  max-height: calc(100dvh - 198px);
+  // 標題32 + title上方margin12
+  // table父層容器 border1px*2 +marginTop8 + padding12*2
+  // 搜尋列60  儲存32  gap-2*2
+  // 186px
+  // 版本號高度40
+  max-height: calc(100dvh - 196px);
 }
 </style>
