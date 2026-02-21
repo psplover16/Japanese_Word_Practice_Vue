@@ -18,9 +18,15 @@ const props = defineProps({
     type: String,
     default: "none",
     validator: (value) =>
-      ["default", "reset", "submit", "unknown", "disabled", "none"].includes(
-        value,
-      ),
+      [
+        "default",
+        "selected",
+        "reset",
+        "submit",
+        "unknown",
+        "disabled",
+        "none",
+      ].includes(value),
   },
   isBorderless: {
     type: Boolean,
@@ -46,6 +52,11 @@ const activeThemeVariantMap = {
   default: {
     primary: "bg-blue-600 text-white",
     outline: "border border-blue-600",
+    active: "",
+  },
+  selected: {
+    primary: "bg-blue-800 text-white",
+    outline: "border border-blue-800",
     active: "",
   },
   reset: {
