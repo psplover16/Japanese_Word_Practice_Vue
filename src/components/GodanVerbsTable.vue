@@ -255,6 +255,18 @@ const tbodyTitle = (key, value) => {
       <tr>
         <td
           :colspan="soundChangeRules.length + 1"
+          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
+        >
+          <div class="w-full flex flex-col">
+            <span class="text-left">1.書く→書き→書い(い音便)→書いて/書いた</span>
+            <span class="text-left">2.買う→買い→買っ(促音便)→買って/買った</span>
+            <span class="text-left">3.飲む→飲み→飲ん(撥音便)→飲んで/飲んだ</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td
+          :colspan="soundChangeRules.length + 1"
           class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center"
         >
           以「す」做辭書型詞尾的五段動詞，不發生音便。ex.探す

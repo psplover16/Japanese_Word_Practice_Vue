@@ -53,7 +53,7 @@ defineProps({
   />
   <GodanVerbsTable
     title="五段動詞表(詞尾母音變化)"
-    subTitle="音便"
+    subTitle="音便 (詞尾接尾一起改變)"
     verbs="飲む"
   />
   <VerbTable
