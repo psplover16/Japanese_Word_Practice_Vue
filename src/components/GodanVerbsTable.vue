@@ -123,7 +123,7 @@ const tbodyTitle = (key, value) => {
           <td
             class="border border-gray-300 p-0.5 relative bg-white no-select"
             :class="{
-              'bg-red-900 text-white':
+              '!bg-red-900 text-white':
                 rowIndex === 1 && (suffixIndex === 1 || suffixIndex === 2),
             }"
           >
@@ -166,13 +166,7 @@ const tbodyTitle = (key, value) => {
           >
             {{ row.baseEnding }}
           </td>
-          <td
-            class="border border-gray-300 p-0.5 relative no-select"
-            :class="{
-              'bg-red-900 text-white':
-                rowIndex === 1 && (suffixIndex === 1 || suffixIndex === 2),
-            }"
-          >
+          <td class="border border-gray-300 p-0.5 relative no-select">
             {{ suffixAndMeaning.suffix }}
           </td>
           <td class="border border-gray-300 p-0.5 relative no-select">
@@ -224,7 +218,7 @@ const tbodyTitle = (key, value) => {
             <td
               class="border border-gray-300 p-0.5 relative bg-white no-select"
               :class="{
-                'bg-red-900 text-white':
+                '!bg-red-700 text-white':
                   rowIndex === 1 && JISHOIndex === 0 && JISHODetailIndex === 0,
               }"
             >
@@ -234,6 +228,10 @@ const tbodyTitle = (key, value) => {
               v-if="JISHODetailIndex === 0"
               :rowspan="JISHOData.length"
               class="border border-gray-300 p-0.5 relative bg-white no-select"
+              :class="{
+                '!bg-red-700 text-white':
+                  rowIndex === 1 && JISHOIndex === 0 && JISHODetailIndex === 0,
+              }"
             >
               {{ row.RENYOUTE[JISHOIndex] }}
             </td>
@@ -241,6 +239,10 @@ const tbodyTitle = (key, value) => {
               v-if="JISHODetailIndex === 0"
               :rowspan="JISHOData.length"
               class="border border-gray-300 p-0.5 relative bg-white no-select"
+              :class="{
+                '!bg-red-700 text-white':
+                  rowIndex === 1 && JISHOIndex === 0 && JISHODetailIndex === 0,
+              }"
             >
               {{ row.RENYOUTA[JISHOIndex] }}
             </td>
