@@ -20,7 +20,24 @@ export const verbsType = {
     // 五段動詞
     GODAN: "五段動詞",
     ICHIDAN: "一段動詞",
-    IRREGULAR: "不規則動詞"
+    IRREGULAR: "不規則動詞",
+    RENTAI: "連体形",
+    SHUUSHI: "終止形"
+
+};
+
+export const verbTypeMeaning = {
+    // ===== 基本活用形 =====
+    MIZEN: "「還沒發生」的形態，常用於否定、被動、使役等表達",
+    RENYOU: "「連接用」的形態，常用於接續助動詞、形容詞等，表達禮貌、完成、進行等",
+    JISHO: "字典查得到的原形態，常用於表示習慣、未來等、接普通文章、子句結尾(也是終止型的現代名稱)",
+    MEIREI: "命令語氣的形態，常用於給予指示、命令等",
+    IKOU: "表示「打算」「讓我們～吧」的形態，常用於表達意圖、建議等",
+    // ===== 條件形 =====
+    KATEI: "表示「如果」",
+    RENTAI: "用於修飾名詞，表示動作或狀態的特徵或屬性。現代日文：連體形 = 辞書形",
+    SHUUSHI: "用於句子結尾，表示陳述或斷定。現代日文：終止形 = 辞書形",
+
 };
 
 export const grammarParts = {
@@ -685,6 +702,16 @@ export const baAuxiliaryVerbsRules = [
                 meaning: "描述現在時態的人事物"
             }
         ]
+    },
+    {
+        base: 'RENTAI',
+        baseEnding: 'な',
+        suffixAndMeaning: [
+            {
+                suffix: "被修飾\n的名詞",
+                meaning: "修飾名詞\nex.好きな人"
+            }
+        ]        
     },
     {
         base: 'KATEI',

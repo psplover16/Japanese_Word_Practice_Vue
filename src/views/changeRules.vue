@@ -14,7 +14,16 @@ import {
   iAdjuctiveConjugationRules,
   naiAdjuctiveConjugationRules,
   baAuxiliaryVerbsRules,
+  verbTypeMeaning,
+  verbsType,
 } from "@/constants/changeRules.js";
+
+const typeForm = computed(() => {
+  const typeArr = Object.entries(verbTypeMeaning);
+  return typeArr.map((item) => ({
+    rules: `${verbsType[item[0]]}：${item[1]}`,
+  }));
+});
 
 const theadTitleType1 = computed(() => {
   const tmp = Object.values(grammarParts);
@@ -50,6 +59,10 @@ defineProps({
   <DistinguishVerbForms
     :rules="verbDistinctionRules"
     title="動詞型態分辨: 一段/五段/不規則"
+  />
+  <DistinguishVerbForms
+    :rules="typeForm"
+    title="各活用型意義"
   />
   <GodanVerbsTable
     title="五段動詞表(詞尾母音變化)"
@@ -90,7 +103,7 @@ defineProps({
   />
 
   <VerbTable
-    :title="'だ助動詞\n名詞＋だ (是...名詞)\n2類形容詞＋だ'"
+    :title="'だ助動詞\n名詞＋だ (ex.彼は学生だ)\nな形容詞＋だ (ex.静かな場所だ)'"
     prefix="好き"
     :theadTitle="theadTitleType3"
     :values="baAuxiliaryVerbsRules"

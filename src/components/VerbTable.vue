@@ -109,11 +109,13 @@ const dealSubValues = computed(() => {
             {{ row.baseEnding }}
           </td>
           <td
-            class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap"
+            class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap whitespace-pre-wrap"
           >
             {{ suffixAndMeaning.suffix }}
           </td>
-          <td class="border border-gray-300 p-0.5 relative bg-white no-select">
+          <td
+            class="border border-gray-300 p-0.5 relative bg-white no-select whitespace-pre-wrap"
+          >
             {{ suffixAndMeaning.meaning }}
           </td>
         </tr>
