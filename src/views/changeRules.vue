@@ -3,7 +3,9 @@ import { computed } from "vue";
 import { verbDistinctionRules } from "@/constants/changeRules.js";
 import DistinguishVerbForms from "@/components/DistinguishVerbForms.vue";
 import GodanVerbsTable from "@/components/GodanVerbsTable.vue";
+import SystemDifferenceTable from "@/components/SystemDifferenceTable.vue";
 import VerbTable from "@/components/VerbTable.vue";
+import ConvertPosChange from "@/components/ConvertPosChange.vue";
 import {
   grammarParts,
   soundChangeRules,
@@ -48,29 +50,25 @@ defineProps({
   title: {
     type: String,
   },
-  letters: {
-    type: Array,
-    required: true,
-  },
 });
 </script>
 
 <template>
+  <SystemDifferenceTable alt="語法系統差異" />
+
+  <DistinguishVerbForms :rules="typeForm" title="各活用型意義" />
   <DistinguishVerbForms
     :rules="verbDistinctionRules"
     title="動詞型態分辨: 一段/五段/不規則"
   />
-  <DistinguishVerbForms
-    :rules="typeForm"
-    title="各活用型意義"
-  />
+
   <GodanVerbsTable
     title="五段動詞表(詞尾母音變化)"
     subTitle="音便 (詞尾接尾一起改變)"
     verbs="飲む"
   />
   <VerbTable
-    title="一段動詞 (所有辭書形母音為「る」的動詞)"
+    title="一段動詞 (辭書型 結尾必定是 る)"
     verbs="見"
     :theadTitle="theadTitleType1"
     :values="ichidabVerbConjugationRules"
@@ -108,6 +106,7 @@ defineProps({
     :theadTitle="theadTitleType3"
     :values="baAuxiliaryVerbsRules"
   />
+  <ConvertPosChange title="詞性變化規則" />
 </template>
 
 <style lang="scss"></style>
