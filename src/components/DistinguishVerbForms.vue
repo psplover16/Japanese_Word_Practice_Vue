@@ -1,5 +1,7 @@
 <script setup>
-import { computed } from "vue";
+import { ref, computed } from "vue";
+
+const isShow = ref(false);
 const props = defineProps({
   title: {
     type: String,
@@ -27,14 +29,18 @@ const dataMaxLength = computed(() => {
     <thead v-if="!!title">
       <tr>
         <th
-          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center"
+          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center relative"
           :colspan="dataMaxLength"
+          @click="isShow = !isShow"
         >
           {{ title }}
+          <div class="absolute right-1 text-xs top-1/2 -translate-y-1/2">
+            {{ isShow ? "▲" : "▼" }}
+          </div>
         </th>
       </tr>
     </thead>
-    <tbody>
+    <tbody v-show="isShow">
       <tr v-for="(row, rowIndex) in rules" :key="rowIndex">
         <td class="border border-gray-300 p-0.5 relative bg-white no-select">
           <div class="flex items-start">

@@ -3,7 +3,9 @@ import { computed } from "vue";
 import { verbDistinctionRules } from "@/constants/changeRules.js";
 import DistinguishVerbForms from "@/components/DistinguishVerbForms.vue";
 import GodanVerbsTable from "@/components/GodanVerbsTable.vue";
+import SystemDifferenceTable from "@/components/SystemDifferenceTable.vue";
 import VerbTable from "@/components/VerbTable.vue";
+import ConvertPosChange from "@/components/ConvertPosChange.vue";
 import {
   grammarParts,
   soundChangeRules,
@@ -14,7 +16,16 @@ import {
   iAdjuctiveConjugationRules,
   naiAdjuctiveConjugationRules,
   baAuxiliaryVerbsRules,
+  verbTypeMeaning,
+  verbsType,
 } from "@/constants/changeRules.js";
+
+const typeForm = computed(() => {
+  const typeArr = Object.entries(verbTypeMeaning);
+  return typeArr.map((item) => ({
+    rules: `${verbsType[item[0]]}：${item[1]}`,
+  }));
+});
 
 const theadTitleType1 = computed(() => {
   const tmp = Object.values(grammarParts);
@@ -39,25 +50,25 @@ defineProps({
   title: {
     type: String,
   },
-  letters: {
-    type: Array,
-    required: true,
-  },
 });
 </script>
 
 <template>
+  <SystemDifferenceTable alt="語法系統差異" />
+
+  <DistinguishVerbForms :rules="typeForm" title="各活用型意義" />
   <DistinguishVerbForms
     :rules="verbDistinctionRules"
     title="動詞型態分辨: 一段/五段/不規則"
   />
+
   <GodanVerbsTable
     title="五段動詞表(詞尾母音變化)"
     subTitle="音便 (詞尾接尾一起改變)"
     verbs="飲む"
   />
   <VerbTable
-    title="一段動詞 (所有辭書形母音為「る」的動詞)"
+    title="一段動詞 (辭書型 結尾必定是 る)"
     verbs="見"
     :theadTitle="theadTitleType1"
     :values="ichidabVerbConjugationRules"
@@ -90,11 +101,12 @@ defineProps({
   />
 
   <VerbTable
-    :title="'だ助動詞\n名詞＋だ (是...名詞)\n2類形容詞＋だ'"
+    :title="'だ助動詞\n名詞＋だ (ex.彼は学生だ)\nな形容詞＋だ (ex.静かな場所だ)'"
     prefix="好き"
     :theadTitle="theadTitleType3"
     :values="baAuxiliaryVerbsRules"
   />
+  <ConvertPosChange title="詞性變化規則" />
 </template>
 
 <style lang="scss"></style>

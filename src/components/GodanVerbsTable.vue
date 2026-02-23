@@ -1,6 +1,5 @@
 <script setup>
-import { computed } from "vue";
-import { letters } from "@/constants/jpText.js";
+import { ref, computed } from "vue";
 import {
   grammarParts,
   godanVerbConjugationRules,
@@ -8,7 +7,6 @@ import {
   soundChangeRules,
 } from "@/constants/changeRules.js";
 import { useVerbsData } from "@/composable/useVerbsData";
-
 const {
   changeGrammarParts,
   dataTotalLength,
@@ -29,8 +27,9 @@ const props = defineProps({
   },
 });
 
-const firstVerbChar = computed(() => props.verbs?.[0] || "");
+const isShow = ref(false);
 
+const firstVerbChar = computed(() => props.verbs?.[0] || "");
 const dealRuleData = computed(() => {
   const lastChar = props.verbs?.slice(-1);
   const targetLetters = targetLettersMotherVoiceGroup(lastChar);
@@ -75,13 +74,17 @@ const tbodyTitle = (key, value) => {
       <tr>
         <td
           :colspan="dealRuleData?.length"
-          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center"
+          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center relative"
+          @click="isShow = !isShow"
         >
           {{ title }}
+          <div class="absolute right-1 text-xs top-1/2 -translate-y-1/2">
+            {{ isShow ? "▲" : "▼" }}
+          </div>
         </td>
       </tr>
     </thead>
-    <tbody>
+    <tbody v-show="isShow">
       <tr>
         <th
           v-for="(value, index) in grammarParts"
@@ -136,7 +139,7 @@ const tbodyTitle = (key, value) => {
       </template>
     </tbody>
 
-    <tfoot>
+    <tfoot v-show="isShow">
       <template v-for="(row, rowIndex) in dealRulePaisenData" :key="rowIndex">
         <tr
           v-for="(suffixAndMeaning, suffixIndex) in row.suffixAndMeaning"
@@ -177,7 +180,7 @@ const tbodyTitle = (key, value) => {
     </tfoot>
   </table>
 
-  <table class="w-full border-separate border-spacing-0">
+  <table class="w-full border-separate border-spacing-0" v-show="isShow">
     <thead class="">
       <tr>
         <td
@@ -258,9 +261,15 @@ const tbodyTitle = (key, value) => {
           class="bg-neutral-100 font-bold text-base p-1 border border-gray-300"
         >
           <div class="w-full flex flex-col">
-            <span class="text-left">1.書く→書き→書い(い音便)→書いて/書いた</span>
-            <span class="text-left">2.買う→買い→買っ(促音便)→買って/買った</span>
-            <span class="text-left">3.飲む→飲み→飲ん(撥音便)→飲んで/飲んだ</span>
+            <span class="text-left"
+              >1.書く→書き→書い(い音便)→書いて/書いた</span
+            >
+            <span class="text-left"
+              >2.買う→買い→買っ(促音便)→買って/買った</span
+            >
+            <span class="text-left"
+              >3.飲む→飲み→飲ん(撥音便)→飲んで/飲んだ</span
+            >
           </div>
         </td>
       </tr>

@@ -1,10 +1,5 @@
 <script setup>
-import { computed } from "vue";
-import {
-  grammarParts,
-  godanVerbConjugationRules,
-  soundChangeRules,
-} from "@/constants/changeRules.js";
+import { ref, computed } from "vue";
 import { useVerbsData } from "@/composable/useVerbsData";
 
 const { changeGrammarParts, dataTotalLength } = useVerbsData();
@@ -18,7 +13,6 @@ const props = defineProps({
   },
   verbs: {
     type: String,
-    required: true,
   },
   theadTitle: {
     type: Array,
@@ -31,6 +25,7 @@ const props = defineProps({
   },
 });
 
+const isShow = ref(false);
 const dealValFuc = (data) => {
   return (
     data?.map((item) => {
@@ -57,13 +52,17 @@ const dealSubValues = computed(() => {
       <tr>
         <td
           :colspan="dealValues?.length + (prefix ? 1 : 0)"
-          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center text-nowrap whitespace-pre-wrap"
+          class="bg-neutral-100 font-bold text-base p-1 border border-gray-300 text-center text-nowrap whitespace-pre-wrap relative px-3"
+          @click="isShow = !isShow"
         >
           {{ title }}
+          <div class="absolute right-1 text-xs top-1/2 -translate-y-1/2">
+            {{ isShow ? "▲" : "▼" }}
+          </div>
         </td>
       </tr>
     </thead>
-    <tbody>
+    <tbody v-show="isShow">
       <tr>
         <th
           v-for="(value, index) in theadTitle"
@@ -109,18 +108,20 @@ const dealSubValues = computed(() => {
             {{ row.baseEnding }}
           </td>
           <td
-            class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap"
+            class="border border-gray-300 p-0.5 relative bg-white no-select text-nowrap whitespace-pre-wrap"
           >
             {{ suffixAndMeaning.suffix }}
           </td>
-          <td class="border border-gray-300 p-0.5 relative bg-white no-select">
+          <td
+            class="border border-gray-300 p-0.5 relative bg-white no-select whitespace-pre-wrap"
+          >
             {{ suffixAndMeaning.meaning }}
           </td>
         </tr>
       </template>
     </tbody>
 
-    <tfoot v-if="dealSubValues.length">
+    <tfoot v-if="dealSubValues.length" v-show="isShow">
       <template v-for="(row, rowIndex) in dealSubValues" :key="rowIndex">
         <tr
           v-for="(suffixAndMeaning, suffixIndex) in row.suffixAndMeaning"
